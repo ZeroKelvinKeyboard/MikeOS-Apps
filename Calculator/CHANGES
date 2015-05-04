@@ -1,3 +1,5 @@
+Version 2.1.0
+  * Modified to use MB++ 4.0 for stability
 Version 2.0.1
   * Tweaked colour scheme.
 Version 2.0.0
@@ -19,9 +21,9 @@ Version 1.1.0
   * Added ability to change border colour.
   * Added ability to toggle animations.
 Version 1.0.2
-  * Division by zero now gives an error via MB++ "ERRBOX" function, rather than freezing.
+  * Division by zero now gives an error rather than freezing.
   * Updated from MB++ version 2.1.0 to 2.1.5 for smoother animations.
 Version 1.0.1
-  * Added "Exit" button since "MENUBOX" from MB++ no-longer supports using the escape key to end.
+  * Added "Exit" button rather than escape key to end.
 Version 1.0.0
   * Initial Release

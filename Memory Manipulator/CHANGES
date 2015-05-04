@@ -1,3 +1,19 @@
+Version 3.2.0
+  * Modified library calls for MB++ version 4.0
+
+Version 3.1.1
+  * Fixed a bug causing the cursor to become out of sync with the memory when going horizontally to new lines.
+  * Changed selection colour from black on yellow to grey on yellow to improve visibility of special characters in the ASCII column.
+  * The ASCII column is now blanked with the Hexdecimal column when entering new values.
+  * Added bar seperating memory view and usage instructions.
+  * Fixed centering of heading in the opening message.
+
+Version 3.1.0
+  * Added ability to load and display files given as commandline parameters
+
+Version 3.0.1
+  * Fixed incorrect memory amount being displayed in the start message
+
 Version 3.0.0
   * Full rewrite, now much smaller and faster
   * Now requires MB++ library

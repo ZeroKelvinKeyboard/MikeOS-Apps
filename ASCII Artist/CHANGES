@@ -1,3 +1,9 @@
+Version 3.1.0
+  * Rewritten to use MB++ Library 4.0
+
+Version 3.0.1
+  * Fixed file load errors.
+
 Version 3.0.0
   * Complete rewrite
   * Requires MB++ library version 3.2.2 or better

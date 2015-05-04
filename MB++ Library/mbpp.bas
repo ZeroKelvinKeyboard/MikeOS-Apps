@@ -123,27 +123,48 @@ return
 
 BOXPRINT:
   GOSUB SAVEVAR
+  X = 64146
+  Y = 64151
+  FOR W = 1 TO 5
+    POKE 0 X
+    POKE 22 Y
+    X = X + 1
+    Y = Y + 1
+  NEXT W
   X = & $6
   W = 36
+  Y = 0
   DO
-  rem $2 = "DEBUG: X:" + X + "W:" + W + "V:" + V
-  rem PRINT $2
-  REM WAITKEY J
     PEEK V X
+    X = X + 1
     IF V = '|' THEN GOTO BOXNEWLN
     IF V = '\' THEN GOTO BOXOPT
     PRINT CHR V ;
     W = W - 1
     IF W < 1 THEN GOTO BOXNEWLN
+    IF Y = 0 AND Y > 32 THEN GOSUB BOXPOFFS
+    IF Y = 0 AND Y < 32 THEN GOSUB BOXPOFFS
     BOXPRNT2:
-    X = X + 1
   LOOP UNTIL V = 0
+  IF V > 15 THEN GOTO BOXPRNT3
+  CURSPOS J V
+  J = J - 22
+  W = V - 11 + 64151
+  POKE J W
+  BOXPRNT3:
   GOSUB LOADVAR
+  RETURN
+
+BOXPOFFS: 
+  CURSPOS J V
+  V = V - 11 + 64146
+  POKE J V
+  Y = 1
   RETURN
   
 BOXOPT:
-  X = X + 1
   PEEK V X
+  X = X + 1
   IF V = '1' THEN X = & $1
   IF V = '2' THEN X = & $2
   IF V = '3' THEN X = & $3
@@ -154,47 +175,50 @@ BOXOPT:
   GOTO BOXPRNT2
   
 BOXTAB:
-  CURSPOS J Y
-  J = J / 8
-  J = J * 8
-  MOVE J Y
+  CURSPOS J V
+  J = J / 8 + 1 * 8
+  MOVE J V
   W = 58 - J
+  V = 1
   GOTO BOXPRNT2
 
 BOXNEWLN:
-  CURSPOS J Y
+  CURSPOS J V
+  J = J - 22
+  W = V - 11 + 64151
+  POKE J W
   J = 22
-  Y = Y + 1
-  MOVE J Y
+  V = V + 1
+  MOVE J V
   W = 36
-  IF Y > 15 THEN GOTO BOXLIMIT
+  IF V > 15 THEN GOTO BOXLIMIT
+  Y = 0
   GOTO BOXPRNT2
   
 BOXLIMIT:
   V = 0
   GOTO BOXPRNT2
-  
 
 BORDER:
   GOSUB SAVEVAR
   GOSUB SAVELOC
   INK Z
   FOR Y = 0 TO 24
-    IF V = 0 THEN PEEK V 64160
-    ELSE IF V = 2 THEN PEEK V 64162
-    ELSE IF V = 24 THEN PEEK V 64164
+    IF Y = 0 THEN PEEK V 64160
+    ELSE IF Y = 2 THEN PEEK V 64162
+    ELSE IF Y = 24 THEN PEEK V 64164
     ELSE PEEK V 64166
     MOVE 0 Y
     PRINT CHR V ;
-    IF V = 0 THEN PEEK V 64161
-    ELSE IF V = 2 THEN PEEK V 64163
-    ELSE IF V = 24 THEN PEEK V 64165
+    IF Y = 0 THEN PEEK V 64161
+    ELSE IF Y = 2 THEN PEEK V 64163
+    ELSE IF Y = 24 THEN PEEK V 64165
     ELSE PEEK V 64166
     MOVE 79 Y
     PRINT CHR V ;
   NEXT Y
   PEEK V 64167
-  FOR X = 1 TO 79
+  FOR X = 1 TO 78
     MOVE X 0
     PRINT CHR V ;
     MOVE X 2
@@ -207,20 +231,20 @@ BORDER:
 RETURN
 
 BORDERDATA:
-218 191 195 180 192 217 179 196 
+218 191 195 180 192 217 179 196
 
 BOX:
   INK T
   FOR Y = 8 TO 17
-    IF V = 8 THEN PEEK V 65400
-    ELSE IF V = 10 THEN PEEK V 65402
-    ELSE IF V = 17 THEN PEEK V 65404
+    IF Y = 8 THEN PEEK V 65400
+    ELSE IF Y = 10 THEN PEEK V 65402
+    ELSE IF Y = 17 THEN PEEK V 65404
     ELSE PEEK V 65406
     MOVE 20 Y
     PRINT CHR V ;
-    IF V = 8 THEN PEEK V 65401
-    ELSE IF V = 10 THEN PEEK V 65403
-    ELSE IF V = 17 THEN PEEK V 65405
+    IF Y = 8 THEN PEEK V 65401
+    ELSE IF Y = 10 THEN PEEK V 65403
+    ELSE IF Y = 17 THEN PEEK V 65405
     ELSE PEEK V 65406
     MOVE 59 Y
     PRINT CHR V ;
@@ -331,9 +355,9 @@ DINBOX:
   if v = 2 then input a
   if v = 3 then input $6
   dinboxnf:
-  if $6 = "" then goto dinboxns
+  if $7 = "" then goto dinboxns
   move 22 13
-  print $6
+  print $7
   move 22 14
   print ">"
   move 23 14
@@ -397,15 +421,15 @@ INPBOX:
 return
 
 LOADLOC:
-  POKEINT X 64164
-  POKEINT Y 64166
+  POKEINT X 64156
+  POKEINT Y 64158
   PEEK X 65428
   PEEK Y 65429
   MOVE X Y
   PEEK X 65438
   INK X
-  PEEKINT X 64164
-  PEEKINT Y 64166
+  PEEKINT X 64156
+  PEEKINT Y 64158
 RETURN
 
 LOADVAR:
@@ -437,24 +461,39 @@ MENUBOX:
 
   DO
     WAITKEY W
-    IF W = 1 AND V > 11 THEN V = V - 1
-    IF W = 2 AND V < 15 THEN V = V + 1
-    IF W < 3 THEN GOSUB MENUDRAW
+    IF W = 1 AND V > 11 THEN GOSUB MENUBUP
+    IF W = 2 AND V < 15 THEN GOSUB MENUBDWN
     IF W = 27 THEN V = 16
     IF W = 13 THEN W = 27
   LOOP UNTIL W = 27 
   GOTO MENUEND
+  
+  MENUBUP:
+    V = V - 1
+    GOSUB MENUDRAW
+    RETURN
+    
+  MENUBDWN:
+    V = V + 1
+    GOSUB MENUDRAW
+    RETURN
   
   MENUDRAW:
     INK C
     MOVE 22 11
     GOSUB BOXPRINT
     INK H
+    X = V - 11 + 64146
+    PEEK J X
+    X = V - 11 + 64151
+    PEEK Y X
+    Y = Y + J - 1
     MOVE 22 V
-    FOR X = 22 TO 57
+    FOR X = J TO Y
       CURSCHAR J
       PRINT CHR J ;
     NEXT X
+    RETURN
     
   MENUEND:
     W = V
@@ -466,6 +505,7 @@ MESBOX:
   GOSUB OPENBOX
   move 22 11
   gosub boxprint
+  move 22 16
   print "Press any key to continue..."
   waitkey j
   GOSUB CLOSEBOX
@@ -567,15 +607,15 @@ rserial:
 return
 
 SAVELOC:
-  POKEINT X 64164
-  POKEINT Y 64166
+  POKEINT X 64156
+  POKEINT Y 64158
   CURSPOS X Y
   POKE X 65428
   POKE Y 65429
   X = INK
   POKE X 65438
-  PEEKINT X 64164
-  PEEKINT Y 64166
+  PEEKINT X 64156
+  PEEKINT Y 64158
 RETURN
 
 SAVEVAR:
@@ -691,6 +731,7 @@ TITLE:
   GOSUB SAVELOC
   PEEK J 65439
   INK J
+  MOVE 2 1
   X = 65440
   DO
     PEEK J X

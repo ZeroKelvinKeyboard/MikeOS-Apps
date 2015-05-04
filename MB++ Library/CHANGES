@@ -1,3 +1,16 @@
+Version 4.0.0
+  * Many sections have been rewritten to follow the MikeOS BASIC documentation more strictly.
+  * The title string is now provided by $5
+  * Content strings are now replaced by a formatted string in $6.
+  * New layout engine used by functions with many lines of text.
+  * Some function boxes using only two lines use $6 and $7 as line strings.
+  * New modes for DINBOX allow mixed text and numeric input.
+  * Removed animations.
+  * Removed string length checks.
+  * LISTBOX is now much smoother.
+  * Data sections for box borders and screen borders are now buffered in memory to speed up drawing.
+  * Data sections are much easier to customize.
+
 Version 3.2.3
   * Fixed a bug in the border function causing the title to be force to the same colour
   * Fixed a bug in the end program function causing ending animations to always be white
