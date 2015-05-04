@@ -1,0 +1,21 @@
+Version 1.0.0
+  * Initial release.
+  * An interactive BASIC interpreter
+  
+Version 1.1.0
+  * Added command bar at the top.
+  * Command bar is persistant on the screen.
+  
+Version 1.2.0
+  * Added interpreter commands.
+     HELP, ABOUT, FILLRND, EXIT, INVERT
+     
+Version 1.2.1
+  * Fixed upper half of variables being destroyed between commands.
+
+Version 1.2.2
+  * Fixed variables being destroyed between commands
+  
+Version 1.2.3
+  * Stopped program area being filled with nulls.
+  

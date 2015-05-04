@@ -1,0 +1,14 @@
+Copy the *.bas files into the programs folder inside a MikeOS source folder and run 
+the build script appropriate for your operating system (located in the root directory). 
+
+A floppy disk image will be generate in the 'disk_images' folder, 
+which you can run in an emulator or write to a physical floppy disk and boot off of.
+
+You can get run these programs by typing their name at the commandline followed by their
+appropriate parameters.
+
+Some of these programs require MikeOS version 4.3 minimum.
+
+These program requires the MikeOS BASIC interpreter. 
+They may not work on MikeOS derivative or OS independent versions of the
+MikeOS BASIC interpreter.

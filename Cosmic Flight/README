@@ -1,0 +1,19 @@
+Cosmic Flight is a fast paced adventure game in which you fly a small craft through a dangerous
+galaxy, collecting as much energy as possible and avoiding danger.
+As you get more energy, you gain more powerful weapons but the game becomes more difficult.
+
+Controls:
+'A' = Move Left
+'D' = Move Right
+Space = Fire
+
+This program requires the MikeOS BASIC interpreter. It may not work on MikeOS derivative or OS
+independent versions of the MikeOS BASIC interpreter.
+
+Files:
+cf.bas - The runable program
+CHANGES - Information about updates to this program
+COPYING - GNU GPLv3 Licence used for this program
+INSTALL - Instructions on how to use this program
+README - This file
+

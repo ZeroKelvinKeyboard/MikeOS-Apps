@@ -1,0 +1,79 @@
+ASCII Artist AAP File Specification
+===================================
+A text artwork file specification.
+Revision 1.
+Picture files usually have the '.AAP' extention and keymaps usually have '.MAP' 
+extention but it is not nessesary as files are indentified by their internal 
+indentifier.
+
+File Header:
++-----------------------------------------------+
+| Field			Size		Offset	|
++-----------------------------------------------+
+| 1) File Identifier	STRING (4)	0	|
+| 2) Version		BYTE		4	|
+| 3) Type		BYTE		5	|
++-----------------------------------------------+
+
+
+Picture File:
++-----------------------------------------------+
+| Field			Size		Offset	|
++-----------------------------------------------+
+| 4) Data Offset	WORD		6	|
+| 5) Columns		BYTE		8	|
+| 6) Rows		BYTE		9	|
+| 7) Keymap		LIST (190)	10	|
+| 8) Title		STRING (61)	200	|
+| 9) File Data		BLOCK(?)	?	|
++-----------------------------------------------+
+
+Palette File:
++-----------------------------------------------+
+| Field			Size		Offset	|
++-----------------------------------------------+
+| 7) Keymap		LIST (190)	6	|
++-----------------------------------------------+
+
+
+1) File Identifier
+	Three ASCII character, 'AAP' then a null. Identifies the filetype is
+	correct.
+	
+2) Version
+	File layout version. If the file specification changes this will be
+	increase. This makes sure programs know if they can open it.
+	Currently one(1). 
+	
+3) Type
+	The file subtype. There are type current types:
+		1 = Picture
+		2 = Keymap
+		
+4) Data Offset
+	A word offset from the beginning of the file in which the raw data
+	found. There is no fixed value for this but the recommended value
+	is 261 because it allows the fields all needed space without
+	producing any gaps in the file.
+	
+5) Columns
+	The size of the image in columns. ASCII Artist has a maximum of 76.
+	
+6) Rows
+	The size of the image in rows. ASCII Artist has a maximum of 21.
+
+7) Keymap
+	The actual values and colours produced by keyboard keys between 
+	32-126. Takes 190 bytes. It uses this form:
+	
+	1              2             3              4		
+	key 32 colour, key 32 value, key 33 colour, key 33 value.
+
+8) Title
+	The title of the image. A sixty-one byte null terminated string.
+
+9) File data
+	The raw data for the image. Takes up [columns*rows*2] bytes.
+	Every first byte is a colour and every second is a character.
+	Data goes from left to right and from top to bottom.
+	

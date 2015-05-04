@@ -1,0 +1,40 @@
++-------------------------------+
+|	Text Compressor		|
++-------------------------------+
+Copyright (C) Joshua Beck 2012
+Email: mikeosdeveloper@gmail.com
+This program is licence under this GNU GPL v3
+See 'LICENCE' for details
+
+A plain text compression application for MikeOS.
+Can reduced the size of text files by about 25%.
+
+Syntax:
+itc (action) (source) (destination)
+
+  Compress - Compresses SOURCE file and saves to DESTINATION
+  Decompress - Decompresses SOURCE files and save to original name
+  Info - Presents information about a compressed file
+  Help - Displays help screen
+
+This program requires the MikeOS BASIC interpreter. 
+It may not work on MikeOS derivatives or OS independent
+versions of the MikeOS BASIC interpreter.
+
+This program requires Hacklib, download it here:
+http://
+
+Files:
+  README - This document
+  CHANGES - Changelog
+  LICENCE - Terms for using this program
+  INSTALL - Installation instructions
+  itc.bas - Main program
+  Screenshots/ - Program screenshots
+  Old Version/ - Older program version
+  Examples/ - Examples compressed files
+  Examples/memedit.itc - File created in usage screenshot
+
+
+
+

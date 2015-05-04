@@ -1,0 +1,607 @@
+rem Memory Editor (memedit.bas) version 2.1
+rem My first proper program in MikeOS
+rem I wrote this in Text Editor on MikeOS 4.1.1
+rem If you fix a bug or add a feature it would be good if you could send it to
+rem me at icantrememberthis11@hotmail
+title:
+  CLS
+  PRINT "Joshua's Memory Viewer"
+  p = PROGSTART
+  r = RAMSTART
+  w = r - p
+  v = 65535 - r
+  print "Program Memory: "
+  move 17 1
+  print w
+  move 0 2
+  print "Available Memory: "
+  move 19 2
+  print v
+  print "Version 2.1"
+  sound 2000 3
+  sound 1000 2
+  print "Colour Edition :-)"
+  rem add in colour sub
+  gosub defcol
+  rem lets make it bursting with colour  
+  v = 0
+  for x = 0 to 17
+    move x 4
+    curschar j
+    v = v + 1
+    if j = 32 then v = v - 1
+    poke v 65525
+    poke j 65520
+    call 65515
+  next x 
+  move 0 5
+  print "Memory editing is dangerous use at your own risk!"
+  print "Press any key to start."
+  rem Lets make our warning red for effect
+  poke 4  65525
+  for x = 0 to 48
+    move x 5
+    curschar j
+    poke j 65520
+    call 65515
+  next x
+  cursor off
+  waitkey k
+  cls
+rem Box drawing characters (right to left top, to bottom)
+rem and variable that need to be defined before startup
+rem I always forget these values
+rem Change the above I to we if you change the source code. Yay, helpers!
+Prep: 
+  rem I originally made lots of text variable but it takes lots of
+  rem memory, which makes the OS crash or do wierd stuff. :-(
+  a = 218 
+  b = 191
+  c = 195
+  d = 180
+  e = 192
+  f = 217
+  g = 179
+  h = 196
+  l = 1
+  m = 1
+  q = 1
+  s = 0
+  z = 65515
+  $a = "n"
+  $b = "y"
+  cursor off
+  goto Border
+defcol:
+  rem Now for the colour routine, thanks wisecracker for this.
+  rem This allows us to print text colours other than white
+  rem a text byte is stored at 65520 and a colour at 65525
+  poke 156 65515
+  poke 80 65516
+  poke 83 65517
+  poke 81 65518
+  poke 184 65519
+  poke 32 65520
+  poke 9 65521
+  poke 183 65522
+  poke 0 65523
+  poke 179 65524
+  poke 7 65525
+  poke 185 65526
+  poke 1 65527
+  poke 0 65528
+  poke 205 65529
+  poke 16 65530
+  poke 89 65531
+  poke 91 65532
+  poke 88 65533
+  poke 157 65534
+  poke 195 65535
+  return
+VariableList:
+  This should NEVER be executed.
+  Since MikeOS doesn't check the file before executing it (GOOD THING!!!)
+  we can use plain text here.
+  This is a place where we say what all the variables are used for
+  so I can find free ones and in case I forget. 
+  'a' - 'h' are for box drawing characters 'i' where peeked byte are put
+  'j' is a temp var 'k' is for keyboard bytes 'l' and 'm' are cursor position
+  'n' marks the program finished startup 'p' is progstart 
+  'o' is used in goleft and goright to mark end or start of line
+  'q' is the column 'r' is ramstart 's' is first byte on screen 
+  'v' and 'w' are temp var 'x' and 'y' are for loops
+  $a is used in Border as "y" for startup (goto) or "n" for redraw (gosub)
+  $b is used to mark if we need to do movecur after getbytes ("y" or "n")
+  notice I didn't put quotes around a text variable, that generates an error
+  't' 'u' and 'z' are UNUSED :-)
+
+Border:
+  rem Colour the border will be drawn in
+  rem currently it is 1 (blue)
+  poke 1 65525
+  rem using routein
+  rem character to print (variable a = box corner)
+  poke a 65520
+  rem now call it
+  call 65515
+  rem there! that wasn't too hard
+  rem top line
+  poke h 65520
+  for x = 1 to 78
+    move x 0
+    call 65515
+  next x
+  rem the top edges
+  move 79 0
+  poke b 65520
+  call 65515
+  move 0 1
+  poke g 65520
+  call 65515
+  move 79 1
+  call 65515
+  move 0 2
+  poke c 65520
+  call 65515
+  move 79 2
+  poke d 65520
+  call 65515
+  poke h 65520
+  rem 2nd line
+  for x = 1 to 78
+    move x 2
+    call 65515
+  next x
+  rem top overlay
+  move 6 3
+  print "0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9"
+  move 53 3
+  print "01234567890123456789"
+  rem now for the bottom
+  move 6 19
+  print "0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9"
+  move 53 19
+  print "01234567890123456789"
+  v = 0
+  rem sides and address number
+  poke g 65520 
+  for x = 3 to 21
+    move 0 x
+    call 65515
+    move 79 x
+    call 65515
+    rem I originally tried x = x + 1 and that ended up VERY bad :-(
+    rem I originally used m,l and q but I changed it to j,v and w
+    rem to save on variables
+    j = x + 1
+    move 70 j
+    v = v + 20
+    w = v - 20
+    rem how many digits will we need?
+    if v < 110 then move 75 j
+    if v > 110 then move 74 j
+    if w = 0 then move 76 j
+    if v < 330 then print w
+    rem now the other side
+    if v < 110 then move 3 j
+    if v > 110 then move 2 j
+    if w = 0 then move 4 j
+    if v < 310 then print w
+  next x
+  rem bottom corners
+  move 0 22
+  poke e 65520
+  call 65515
+  move 79 22
+  poke f 65520
+  call 65515
+  rem 3rd and bottom line
+  poke h 65520  
+  for x = 1 to 78
+    move x 22
+    call 65515
+  next x
+  move 2 1
+  print "Memory Editor"
+  rem make it light blue
+  poke 9 65525
+  for x = 2 to 15
+    move x 1
+    curschar j
+    poke j 65520
+    call 65515
+  next x
+  move 2 20
+  print "Use the arrow keys to move around, G for GOTO, Enter to change value," 
+  move 2 21
+  print "S to switch columns, Q for page up and A for page down."  
+  rem and this stuff will be 
+  poke 3 65525
+  for y = 20 to 21
+    for x = 2 to 77
+      move  x y
+      curschar j
+      poke j 65520
+      call 65515
+    next x
+  next y
+  if $a = "y" then return
+  
+  rem I put this here because I don't want to make the main loop look ugly
+  rem we turn the cursor off before we start the if's because a few of them
+  rem redraw the interface and it looks bad
+
+Main:
+  rem first time stuff
+  if n = 0 then gosub getbytes
+  if n = 0 then gosub movecur
+  if n = 0 then n = 1
+  waitkey k
+    rem main keyboard loop
+    rem what a good structured programer I am!
+    cursor off
+    if k = 27 then goto endprog
+    if k = 1 then gosub goup 
+    if k = 2 then gosub godown
+    if k = 3 then gosub goleft
+    if k = 4 then gosub goright
+    if k = 'g' then gosub jumpto
+    if k = 'G' then gosub jumpto
+    if k = 13 then gosub newval
+    if k = 's' then gosub switch
+    if k = 'S' then gosub switch
+    if k = 'z' then gosub fastdown
+    if k = 'Z' then gosub fastdown
+    if k = 'q' then gosub fastup
+    if k = 'Q' then gosub fastup
+    goto Main
+
+endprog:
+  cls
+  print "Thanks for using my Memory Viewer."
+  print "Don't forget to fix any bugs you might find!"
+  print "Bye, bye!"
+  rem Hahahahaha, I don't write BUGS!
+  cursor on
+  end
+
+switch:
+  poke 7 65525
+  curschar j
+  poke j 65520
+  call 65515
+  if q = 1 then gosub otherbyte
+  j = q
+  if j = 1 then q = 2
+  if j = 2 then q = 1
+  goto movecur
+ 
+getbytes:
+  rem copy the memory we need
+  for x = 0 to 299
+    v = x + s
+    peek i v
+    j = x + r + 100
+    poke i j
+  next x
+printbytes:
+rem now lets put it onto the screen
+  for y = 4 to 18
+    for x = 53 to 72
+      move x y
+      w = y - 4
+      v = x - 53
+      w = w * 20
+      j = w + v
+      j = j + r + 100
+      peek i j
+      rem so it doesn't beep, we print a null
+      rem this doesn't affect the hex value
+      if i = 7 then i = 0
+      print chr i
+    next x
+  next y
+  goto printhex
+printloc:
+  rem Print location top of screen
+  move 50 1
+  j = m - 1
+  j = j * 20
+  j = j + l
+  j = j - 1
+  j = j + s
+  print "                 "
+  if j > 9999 then move 58 1 
+  if j < 10000 then move 59 1
+  if j < 1000 then move 60 1
+  if j < 100 then move 61 1
+  if j < 10 then move 62 1
+  if j < 0 then move 58 1
+  print j
+  return
+printhex:
+rem same as printbytes but in hex format
+  for y = 4 to 18 
+    for x = 5 to 24
+      w = y - 4
+      v = x - 5
+      w = w * 20
+      j = w + v
+      j = j + r + 100
+      peek i j
+      v = v * 2
+      v = v + 6
+      move v y
+      print hex i
+    next x
+  next y
+  gosub printloc
+  if $b = "n" then return
+movecur:
+  rem selected byte colour
+  poke 14 65525
+  if q = 1 then v = l * 2 - 1
+  if q = 2 then v = l + 52
+  if q = 1 then v = v + 5
+  w = m + 3
+  move v w
+  curschar j
+  poke j 65520
+  call 65515
+  if q = 1 then gosub otherbyte
+  gosub dselect
+  if l = 1 then gosub linefix
+  if l = 20 then gosub linefix
+  cursor on
+  return
+otherbyte:
+  rem do the same to the other character of a hex value
+  v = v + 1
+  move v w
+  curschar j
+  poke j 65520
+  call 65515
+  v = v - 1
+  move v w
+  return 
+linefix:
+  if q = 1 then goto hexfix  
+  if l = 1 then v = v + 19
+  if l = 20 then v = v - 19
+  move v w
+  curschar j
+  poke 7 65525
+  poke j 65520
+  call 65515
+  if l = 1 then v = v - 19
+  if l = 20 then v = v + 19
+  move v w
+  return
+hexfix:
+  if l = 1 then v = v + 38
+  if l = 20 then v = v - 38
+  for x = 0 to 1
+    v = v + x
+    move v w
+    curschar j
+    poke 7 65525
+    poke j 65520
+    call 65515
+  next x
+  v = v - 1
+  if l = 1 then v = v - 38
+  if l = 20 then v = v + 38
+  move v w
+  return
+dselect:
+  rem change the character back to white
+  poke 7 65525
+  rem go to last cell
+  if k = 1 then m = m + 1
+  if k = 2 then m = m - 1
+  if k = 3 then l = l + 1
+  if k = 4 then l = l - 1
+  if l = 0 then m = m - 1
+  if l = 0 then l = 20
+  if l = 21 then m = m + 1
+  if l = 21 then l = 1
+  if q = 1 then v = l * 2 - 1  
+  if q = 2 then v = l + 52
+  if q = 1 then v = v + 5
+  w = m + 3
+  move v w
+  curschar j
+  poke j 65520
+  call 65515
+  if q = 1 then gosub otherbyte
+  if k = 1 then m = m - 1
+  if k = 2 then m = m + 1
+  if k = 3 then l = l - 1
+  if k = 4 then l = l + 1
+  if l = 0 then m = m - 1
+  if l = 0 then l = 20
+  if l = 21 then m = m + 1
+  if l = 21 then l = 1
+  if q = 1 then v = l * 2 - 1
+  if q = 2 then v = l + 52
+  if q = 1 then v = v + 5
+  w = m + 3
+  move v w
+  return
+goup:
+  rem Decrease starting point and redraw
+  if m = 1 then s = s - 20
+  if m > 1 then m = m - 1
+  gosub getbytes
+  cursor on
+  return  
+godown:
+  rem Increase starting point and redraw
+  if m = 15 then s = s + 20
+  if m < 15 then m = m + 1
+  gosub getbytes
+  cursor on
+  return
+box:
+  rem lets have fun and draw a box for features!
+  move 20 8
+  poke a 65520
+  call 65515
+  move 59 8
+  poke b 65520
+  call 65515
+  rem first line
+  poke h 65520
+  for x = 21 to 58
+    move x 8
+    call 65515
+  next x
+  rem continue edges
+  move 20 9
+  poke g 65520
+  call 65515
+  move 59 9
+  call 65515
+  move 20 10
+  poke c 65520
+  call 65515
+  move 59 10
+  poke d 65520
+  call 65515
+  rem now the sides
+  poke g 65520
+  for x = 11 to 16
+    move 20 x
+    call 65515
+    move 59 x
+    call 65515
+  next x
+  rem bottom corners
+  move 20 17
+  poke e 65520
+  call 65515
+  move 59 17
+  poke f 65520
+  call 65515
+  rem second line
+  poke h 65520
+  for x = 21 to 58
+    move x 10
+    call 65515
+  next x
+  rem third and final line
+  poke h 65520
+  for x = 21 to 58
+    move x 17
+    call 65515
+  next x
+  rem remove text inside box
+  move 21 9
+  print "                                      "
+  move 21 11
+  print "                                      "
+  move 21 12
+  print "                                      "
+  move 21 13
+  print "                                      "
+  move 21 14
+  print "                                      "
+  move 21 15
+  print "                                      "
+  move 21 16
+  print "                                      "
+  rem ok, glad that's done. Isn't box drawing fun! :-(
+  rem now we can add features without having to do this again
+  return
+jumpto:
+  rem goto cell
+  rem lets use our box
+  rem first set colour
+  poke 2 65525
+  rem then draw it
+  gosub box
+  rem lets put some stuff in it
+  move 22 9
+  print "Goto - Location"
+  move 22 12
+  print "Enter the number of a memory cell to"
+  move 22 13
+  print "go to that location. It must be"
+  move 22 14
+  print "between 0 and 65535."
+  move 22 16
+  print "Press enter to go"
+  move 22 15
+  print ">"
+  move 23 15
+  cursor on
+  input s
+  cursor off
+  gosub nvf
+  return
+newval:
+  rem change value
+  poke 4 65525
+  gosub box
+  move 22 9
+  print "Change Cell"
+  move 22 12
+  print "Enter a new value for this"
+  move 22 13
+  print "cell between 0 and 255."
+  move 22 14
+  rem we don't want to force people into a dangerous memory edit
+  print "Type 256 to cancel."
+  move 22 15
+  print ">"
+  move 23 15
+  x = 256
+  input x
+  if x = 256 then goto nvf
+  if x > 256 then goto newval
+  move 22 16
+  print "Press enter to change."
+  rem now to find out our position
+  j = m - 1
+  j = j * 20
+  j = j + l
+  j = j - 1
+  j = j + s
+  poke x j
+nvf:
+  cls
+  $a = "y"
+  gosub Border
+  gosub getbytes
+  $a = "n"
+  return
+goleft:
+  $b = "n"
+  o = 0
+  if l = 1 then o = 1
+  if o = 1 then gosub goup
+  if o = 1 then l = 20
+  if o = 0 then l = l - 1  
+  gosub printloc
+  gosub movecur
+  $b = "y"
+  return
+goright:
+  $b = "n"
+  o = 0
+  if l = 20 then o = 1
+  if o = 1 then gosub godown
+  if o = 1 then l = 1
+  if o = 0 then l = l + 1
+  gosub printloc
+  gosub movecur
+  $b = "y"
+  return
+fastdown:
+  s = s + 300
+  gosub getbytes
+  return
+fastup:
+  s = s - 300
+  gosub getbytes
+  return 

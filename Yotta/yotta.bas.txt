@@ -1,0 +1,825 @@
+start:
+  cls
+  cursor off
+  x = progstart
+  x = x - 2
+  peekint c x
+  x = x - 2
+  peekint d x
+
+  pokeint 3 d
+  call c
+
+a = 0
+b = 2
+n = 1
+
+loadfile:
+if $1 = "" then goto newfile
+
+size $1
+if r > 0 then goto newfile
+
+g = ramstart
+f = g
+h = g
+
+x = 65535 - g
+if s > x then print "File too big"
+if s > x then end
+e = g + s - 1
+if s = 0 then e = g
+load $1 g
+
+$2 = $1
+w = & $2
+pokeint 4 d
+x = d + 2
+pokeint w x
+call c
+
+w = 0
+z = ramstart
+for x = z to e
+  peek v x
+  if v = 10 then w = w + 1
+next x
+
+m = w
+if v = 10 then rem
+else m = m + 1
+
+if m = 1 then $3 = "Read 1 line"
+if m > 1 then $3 = "Read " + m + " lines"
+if s = 0 then $3 = "Read 0 lines"
+gosub set_caption
+
+pokeint 8 d
+x = d + 2
+v = ramstart
+pokeint v x
+x = x + 2
+pokeint e x
+call c
+
+main:
+  gosub showcursor
+  do
+    waitkey k
+    if k = 1 then gosub goup
+    if k = 2 then gosub godown
+    if k = 3 then gosub goleft
+    if k = 4 then gosub goright
+    if k = 5 then gosub goeol
+    if k = 6 then gosub goeof
+    if k = 7 then gosub gethelp
+    if k = 8 then gosub backspace
+    if k = 11 then gosub cuttext
+    if k = 12 then gosub remline
+    if k = 13 then gosub insline
+    if k = 15 then gosub writeout
+    if k = 17 then gosub gosol
+    if k = 18 then gosub readfile
+    if k = 19 then gosub gosof
+    if k = 21 then gosub paste
+    if k = 22 then gosub nextpage
+    if k = 25 then gosub prevpage
+    if k = 26 then gosub curpos
+    if k > 31 and k < 127 then gosub inschar
+    if k = 127 then gosub delete
+  loop until k = 24
+  if p = 1 then goto unsaved
+  exit:
+  cls
+  x = progstart
+  x = x - 5
+  poke 0 x
+  end
+  
+unsaved:
+  $3 = "Save modified buffer (ANSWERING 'No' WILL DESTROY CHANGES) ? "
+  gosub question
+  w = v
+  if w = 0 then gosub save_current
+  if w = 0 then goto exit
+  if w = 1 then goto exit
+  if w = 2 then goto main
+goto unsaved
+  
+newfile:
+  $2 = $1
+  pokeint 4 d
+  w = & $1
+  x = d + 2
+  pokeint w x
+  call c
+  
+  g = ramstart
+  f = g
+  h = g
+  e = g
+  m = 1
+  n = 1
+
+  gosub render_text
+goto main
+  
+goup:
+  if b = 2 then goto scrollup
+  gosub hidecursor
+
+  x = b - 1
+  move 0 x
+  curschar v
+  if v = 0 then return
+
+  gosub hidecursor  
+
+  h = h - a
+  b = b - 1
+  
+  move 79 b
+  curschar v
+  if v > 0 then gosub up_hidden
+
+  x = 80
+  do
+    h = h - 1
+    x = x - 1
+    move x b
+    curschar v    
+    if x = a and v = 0 then a = a - 1
+    if v = 0 then h = h + 1
+  loop until x = a
+  
+  n = n - 1
+  gosub showcursor
+return
+
+up_hidden:
+  h = h - 1
+  do
+    h = h - 1
+    peek v h
+  loop until v = 10
+  h = h + 81
+return
+
+scrollup:
+  if f = g then return
+  
+  gosub hidecursor
+
+  x = f
+  y = 0
+  do
+    x = x - 1
+    peek v x
+    if v = 10 then y = y + 1
+  loop until y = 2
+  f = x + 1
+  if f < g then f = g
+  
+  pokeint 10 d
+  call c
+  
+  gosub render_text
+  b = b + 1
+goto goup
+  
+
+godown:
+  if n = m then return
+  if b = 20 then goto scrolldown
+
+  x = b + 1
+  move 0 x
+  curschar v
+  if v = 0 then return
+
+  gosub hidecursor  
+
+  x = a - 1
+  h = h - 1
+  do
+    x = x + 1
+    h = h + 1
+    move x b
+    curschar v
+    if x > 79 then peek v h
+  loop until v = 255
+
+  x = 65535
+  y = b + 1
+  do
+    h = h + 1
+    x = x + 1
+    move x y
+    curschar v
+    if v = 255 then a = x
+    if v = 17 then a = x
+  loop until x = a
+    
+  b = b + 1
+  n = n + 1
+  gosub showcursor
+return
+
+scrolldown:
+  x = n + 1
+  
+  x = f
+  do
+    peek v x
+    x = x + 1
+  loop until v = 10
+  f = x
+  
+  pokeint 10 d
+  call c
+  
+  gosub render_text
+  b = b - 1
+goto godown
+
+goleft:
+  if a = 0 then return
+  gosub hidecursor
+  a = a - 1
+  h = h - 1
+  gosub showcursor
+return
+
+goright:
+  if a = 79 then return
+  move a b
+  curschar v
+  if v = 255 then return
+  if v = 17 then return
+  
+  gosub hidecursor
+  a = a + 1
+  h = h + 1
+  gosub showcursor
+return
+
+goeol:
+  move a b
+  curschar v
+  if v = 17 then return
+  if v = 255 then return
+
+  gosub hidecursor
+
+  do
+    a = a + 1
+    h = h + 1
+    move a b
+    curschar v
+    if v = 17 then v = 255
+    if a = 79 then v = 255
+  loop until v = 255
+
+  gosub showcursor
+return
+
+goeof:
+  if m < 20 then return  
+
+  h = e + 1
+  y = 0
+  do
+    h = h - 1
+    peek v h
+    if v = 10 then y = y + 1
+  loop until y = 20
+  h = h + 1
+  f = h
+  
+  gosub render_text
+
+  n = m - 18
+
+  a = 0
+  b = 2
+  gosub showcursor
+return
+
+gosol:
+  if a = 0 then return
+  
+  gosub hidecursor
+
+  h = h - a
+  a = 0
+  move a b
+  
+  gosub showcursor
+return
+
+gosof:
+  f = g
+  h = g
+
+  gosub render_text
+  
+  n = 1
+
+  a = 0
+  b = 2
+  gosub showcursor
+return
+
+
+gethelp:
+  pokeint 10 d
+  call c
+  ink 15
+  w = ramstart
+  v = w - 32770
+  $3 = "Program: " + v + " bytes"
+  v = e - g
+  if v > 1 then $4 = "File: " + v + " bytes"
+  if v = 1 then $4 = "File: 1 byte"
+  if v = 0 then $4 = "File: 0 bytes"
+  x = ramstart
+  v = 0 - e
+  $5 = "Free: " + v + " bytes"
+
+  print "yotta: a nano clone for MikeOS"
+  print "Version 2.00x10^24"
+  print "Copyright (C) Joshua Beck 2015"
+  print "Licenced under the GNU GPL v3"
+  print "Email: zerokelvinkeyboard@gmail.com"
+  print ""
+  print "Memory Usage"
+  print "============"
+  print "Total: 65536 bytes"
+  print "System: 24576 bytes"
+  print "Buffer: 8192 bytes"
+  print $3
+  print $4
+  print $5
+  print ""
+  print "Press any key to continue..."
+  waitkey k
+  call c
+  print "Key Combinations:"
+  print ""
+  print "^E    End of Line"
+  print "^F    End of File"
+  print "^G    Display this help"
+  print "^K    Cut Text"
+  print "^L    Delete Line"
+  print "^O    Write File"
+  print "^Q    Start of Line"
+  print "^R    Read File"
+  print "^S    Start of File"
+  print "^U    Uncut Text"
+  print "^V    Next Page"
+  print "^X    Exit"
+  print "^Y    Previous Page"
+  print "^Z    Cursor Position"
+  print ""
+  print "Press any key to continue..."
+  waitkey k
+  
+  gosub render_text
+
+  gosub showcursor
+  getkey k
+return
+  
+curpos:
+  y = 65535
+  do
+    y = y + 1
+    move y b
+    curschar v
+    if v = 17 then y = y - 1
+    if v = 17 then v = 255
+  loop until v = 255
+  y = y + 1
+  if y > 80 then y = 80
+
+  w = a + 1
+  z = h - g + 1
+  number z $4
+  v = e - g
+  if h < e then rem
+  else $4 = "EOF"
+  $3 = "line " + n + "/" + m + ", col " + w + "/" + y + ", char " + $4 + "/" + v
+
+  gosub set_caption
+return
+
+inschar:
+  if p = 0 then gosub set_modified
+  pokeint 0 d
+  x = d + 2
+  pokeint h x
+  x = x + 2
+  v = e - h + 1
+  pokeint v x
+  x = x + 2
+  pokeint 1 x
+  call c
+  e = e + 1
+  
+  pokeint 11 d
+  x = d + 2
+  pokeint a x
+  x = x + 2
+  pokeint b x
+  call c
+
+  poke k h
+  move a b
+  print chr k ;
+goto goright
+
+insline:
+  if p = 0 then gosub set_modified
+
+  pokeint 0 d
+  x = d + 2
+  pokeint h x
+  x = x + 2
+  v = e - h + 1
+  pokeint v x
+  x = x + 2
+  pokeint 1 x
+  call c
+  e = e + 1
+  
+  poke 10 h
+  m = m + 1
+
+  gosub render_text
+
+  gosub godown
+goto gosol
+
+backspace:
+  if h = g then return
+  if p = 0 then gosub set_modified
+  if a = 0 then goto backline
+  gosub goleft
+
+  pokeint 1 d
+  x = d + 2
+  pokeint h x
+  x = x + 2
+  v = e - h + 1
+  pokeint v x
+  x = x + 2
+  pokeint 1 x
+  call c
+  e = e - 1
+  
+  move 79 b
+  curschar v
+  if v > 0 then goto backlast
+  
+  pokeint 12 d
+  x = d + 2
+  pokeint a x
+  x = x + 2
+  pokeint b x
+  call c
+return
+
+backlast:
+  gosub render_text
+  gosub showcursor
+  return
+
+backline:
+  h = h - 1
+  pokeint 1 d
+  x = d + 2
+  pokeint h x
+  x = x + 2
+  v = e - h + 1
+  pokeint v x
+  x = x + 2
+  pokeint 1 x
+  call c
+  e = e - 1
+
+  gosub goup
+  gosub goeol
+  h = h + 1
+  m = m - 1
+
+  gosub render_text
+
+  gosub showcursor
+return
+
+delete:
+  if p = 0 then gosub set_modified
+  move a b
+  curschar v
+  if v = 255 then goto remnl
+
+  gosub goright
+  gosub backspace
+return
+
+remnl:
+  pokeint 1 d
+  x = d + 2
+  pokeint h x
+  x = x + 2
+  v = e - h + 1
+  pokeint v x
+  x = x + 2
+  pokeint 1 x
+  call c
+  e = e - 1
+  
+  gosub render_text
+  gosub showcursor
+return
+
+nextpage:
+  w = f
+  y = 0
+  do
+    peek v w
+    if v = 10 then y = y + 1
+    w = w + 1
+    if w > e then y = 19
+  loop until y = 19
+  gosub checknext
+  if w > e then rem
+  else if x > e then goto goeof
+  if x > e then return
+  n = n + 19
+  v = w - f
+  h = h + v
+  f = w
+  h = f
+  
+  a = 0
+  n = n - b + 2
+  b = 2
+  gosub render_text
+  gosub showcursor
+return
+  
+checknext:
+  x = w
+  y = 0
+  do
+    peek v x
+    if v = 10 then y = y + 1
+    if x > e then y = 19
+    x = x + 1
+  loop until y = 19
+return
+
+prevpage:
+  a = 0
+  n = n - b + 2
+  b = 2
+  w = f
+  y = 0
+  do
+    w = w - 1
+    peek v w
+    if v = 10 then y = y + 1
+    if v = 10 then n = n - 1
+    if w < g then y = 20
+  loop until y = 20
+  if w < g then w = g - 1
+  else n = n + 1
+  v = f - w
+  f = w + 1
+  h = f
+  
+  gosub render_text
+  gosub showcursor
+return
+
+remline:
+  if p = 0 then gosub set_modified
+  gosub gosol
+  
+  x = h - a
+  y = x
+  w = 0
+  do
+    peek v x
+    x = x + 1
+    w = w + 1
+  loop until v = 10
+  
+  e = e - w
+  m = m - 1
+  
+  pokeint 1 d
+  x = d + 2
+  pokeint y x
+  x = x + 2
+  v = e - g + 1
+  pokeint v x
+  x = x + 2
+  pokeint w x
+  call c
+  
+  gosub render_text
+  a = 0
+  gosub showcursor
+return
+
+cuttext:
+  if p = 0 then gosub set_modified
+  gosub gosol
+  
+  w = 1
+  x = 0
+  do
+    move x b
+    x = x + 1
+    curschar v
+    string set $5 w v
+    w = w + 1
+  loop until v = 255
+  w = w - 1
+  v = 0
+  string set $5 w v
+  
+goto remline
+
+paste:
+  if $5 = "" then return
+  if p = 0 then gosub set_modified
+  
+  gosub gosol
+  gosub insline
+  gosub goup
+  len $5 z
+
+  pokeint 0 d
+  x = d + 2
+  pokeint h x
+  x = x + 2
+  v = e - h + 1
+  pokeint v x
+  x = x + 2
+  pokeint z x
+  call c
+  e = e + z
+  
+  x = h
+  for w = 1 to z
+    string get $5 w v
+    poke v x
+    x = x + 1
+  next w
+  
+  gosub render_text
+  gosub showcursor
+return
+
+readfile:
+  $3 = "Save file before loading? "
+  w = 1
+  if $2 = "" then rem
+  else if p = 1 then gosub question
+  if w = 0 then gosub save_current
+  if w = 2 then return
+  
+  pokeint 6 d
+  x = d + 2
+  $3 = "File to insert : "
+  v = & $3
+  pokeint v x
+  x = x + 2
+  $4 = ""
+  v = & $4
+  pokeint v x
+  call c
+  if $4 = "" then goto cancelled
+  $1 = $4
+  x = 0
+  loop until x = 0
+  gosub clear_modified
+  
+  gosub hidecursor
+  a = 0
+  b = 2
+  gosub showcursor
+  n = 1
+goto loadfile
+
+writeout:
+  $3 = "Save to existing file? "
+  gosub question
+  if v = 0 then goto save_current
+  if v = 2 then goto cancelled
+
+  pokeint 6 d
+  x = d + 2
+  $3 = "File Name to Write: "
+  v = & $3
+  pokeint v x
+  x = x + 2
+  $4 = ""
+  v = & $4
+  pokeint v x
+  call c
+  if $4 = "" then goto cancelled
+  $2 = $4
+
+save_current:
+  if $2 = "" then goto writeout
+  delete $2
+  v = e - g
+  save $2 g v
+  if r > 0 then goto saveerror
+  
+  if m = 1 then $3 = "Wrote 1 line"
+  if m > 1 then $3 = "Wrote " + m + " lines"
+  gosub set_caption
+  
+  case upper $2
+  pokeint 4 d
+  x = d + 2
+  v = & $2
+  pokeint v x
+  call c
+  gosub clear_modified
+return
+
+cancelled:
+  $3 = "Cancelled"
+  gosub set_caption
+return
+
+saveerror:
+  $3 = "Bad filename or read-only disk"
+  gosub set_caption
+  $2 = ""
+return
+  
+render_text:
+  pokeint 8 d
+  x = d + 2
+  pokeint f x
+  x = x + 2
+  pokeint e x
+  call c
+return
+
+showcursor:
+  move a b
+  ink 240
+  curschar l
+  print chr l ;
+  ink 15
+return
+
+hidecursor:
+  move a b
+  ink 15
+  curschar l
+  print chr l ;
+return
+
+set_caption:
+  pokeint 5 d
+  x = d + 2
+  v = & $3
+  pokeint v x
+  call c
+return
+
+set_modified:
+  p = 1
+  pokeint 9 d
+  x = d + 2
+  pokeint 1 x
+  call c
+return
+
+clear_modified:
+  p = 0
+  pokeint 9 d
+  x = d + 2
+  pokeint 0 x
+  call c
+return
+
+question:
+  pokeint 13 d
+  v = & $3
+  x = d + 2
+  pokeint v x
+  call c
+  x = x + 2
+  peekint v x
+return
+

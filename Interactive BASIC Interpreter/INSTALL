@@ -1,0 +1,18 @@
+
+=== MikeOS ===
+MikeOS version 4.3.0 or later is needed to run this program.
+The latest version can be downloaded from the MikeOS mirror on GitHub.
+https://github.com/mig-hub/mikeOS
+
+Copy the program file ('basic.bas') into the 'programs' folder inside the MikeOS directory. Run the build script to add the file to the disk image. The disk image can then be run in an emulator or written to a floppy disk and run on real hardware.
+
+The program can be run by selecting 'BASIC.BAS' in the program menu typing 'basic' at the command line.
+
+=== TachyonOS ==
+Any build of TachyonOS can be used to run this program. This program should already be included with the operating system and as program entry in the main menu.
+
+Copy 'basic.bas' into the 'programs' folder located inside the TachyonOS directory, replace the existing file if needed. Run the build script to add the file to the disk image. The disk image can them be run using the emulator scripts or written to a floppy disk and run on real hardware.
+
+The program can then be run by selecting 'BASIC Shell' in the main menu, 'BASIC.BAS' in the 'All Programs' menu or typing 'basic' in the command line shell.
+
+

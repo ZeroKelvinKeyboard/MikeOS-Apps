@@ -1,0 +1,30 @@
+  	copyright notice
+    	description
+  	how to use
+  	Kernel Version
+  	libraries
+  	potential issues
+  	list of files
+
+The Interactive BASIC Interpreter is a BASIC program for MikeOS and TachyonOS that allow BASIC commands to be run interactively without having to create a program file.
+
+The interpreter has two modes: interactive and command line. In interactive mode, commands are entered into the command bar at the top and the output appears in the area below. In command line mode, commands are provided as an argument when starting the interpreter and will be run at the command line. 
+
+Interactive mode is entered when the interpreter is started by the TUI shell or on the command line without arguments, otherwise the command line mode is run.
+
+In both modes, commands can be separated by a colon ':', which is translated into a new line before giving to the interpreter. 
+
+There is a small collection of internal commands that are understood by the interpreter.
+HELP		Display the help text.
+ABOUT		Display the about text (run when interactive mode entered).
+EXIT		Cleanly exits interactive mode.
+INVERT		Inverts all colour on the screen.
+FILLRND		Fills the screen with random characters and colours.
+
+=== Files Included ===
+basic.bas	The interpreter program
+CHANGES.TXT	A log of changes between versions.
+LICENCE		The GNU GPL v3, which the project is licenced under
+INSTALL 	Installation instructions for MikeOS and TachyonOS
+Old Versions	Older versions of the program
+README		This file

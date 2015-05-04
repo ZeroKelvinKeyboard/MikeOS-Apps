@@ -1,0 +1,560 @@
+rem ASCII Artist
+rem draw.bas
+rem version 1.0.3
+rem If you have any changes send them to mikeosdeveloper@gmail.com
+preload:
+  print "loading..."
+  rem did they specify a filename?
+  if $1 = " " then $1 = ""
+  if $1 = "" then goto nopara
+  rem change any lowercase letters in the parameters to capital
+  x = & $1
+  gosub capitalise
+  rem now load it
+  gosub blank
+  load $1 49999 
+  if r = 0 then goto nopara
+  print "File '";
+  print $1 ;
+  print "' not found."
+  end
+  nopara:
+  rem colour subroutine
+  z = 65515
+  for x = 1 to 21
+    read asmcolour x y
+    poke y z
+    z = z + 1
+  next x
+  z = 51900
+  for x = 1 to 9
+    read keyval x y
+    poke y z
+    z = z + 1
+  next x
+  goto config
+  asmcolour:
+  156 80 83 81 184 32 9 183 0 179 7 185 1 0 205 16 89 91 88 157 195
+
+  rem default values for numbers in asending order
+  rem we don't have enough variables so we poke them into memory
+  rem it also means that we need write a lot less boring stuff
+
+  keyval:
+  255 178 220 219 221 254 222 176 223 177
+
+  config:
+  rem starting position for cursor
+  l = 1
+  m = 1
+  rem box drawing characters
+  s = 201
+  t = 187
+  u = 204
+  v = 185
+  w = 200
+  x = 188
+  y = 186
+  z = 205
+goto title
+
+title:
+  cursor off
+  cls
+  move 2 2
+  print "ASCII Artist for MikeOS"
+  move 2 3
+  print "Version 1.0.2"
+  move 2 4
+  print "Make sure numpad is on!"
+  move 2 5
+  print "Press any key to start..."
+  rem corners
+  move 1 1
+  print chr s
+  move 28 1
+  print chr t
+  move 1 6
+  print chr w
+  move 28 6
+  print chr x
+  rem lines
+  for a = 2 to 27
+    move a 1
+    print chr z
+    move a 6
+    print chr z
+  next a
+  for a = 2 to 5
+    move 1 a
+    print chr y
+    move 28 a
+    print chr y
+  next a
+  rem lets make it yellow
+  poke 14 65525 
+  for d = 1 to 6
+    for c = 1 to 29
+      move c d
+      curschar j
+      poke j 65520
+      call 65515
+    next c
+  next d
+  rem now wait...
+  waitkey k
+  cls
+  gosub blankui
+  gosub initui
+  gosub drawui
+  gosub redraw
+  gosub colchange
+  gosub tah
+
+main:
+  waitkey k
+  if k = 1 then gosub keyup
+  if k = 2 then gosub keydown
+  if k = 3 then gosub keyright
+  if k = 4 then gosub keyleft
+  if k = 13 then gosub change
+  if k = 27 then goto endprog
+  if k = 18 then gosub refresh
+  if k = 8 then gosub help
+  if k = 3 then gosub cs
+  if k = 19 then gosub savefile
+  if k = 12 then gosub loadfile
+  if k > 47 and k < 58 then gosub numkey
+  if k > 47 and k < 58 then goto main
+  if k > 31 and k < 127 then gosub otherkey
+goto main
+capitalise:
+  for y = 1 to 12
+    peek z x
+    if z > 96 and z < 123 then z = z - 32
+    poke z x
+    x = x + 1
+  next y
+return
+blank:
+  j = 49999
+  for c = 0 to 1598
+    poke 0 j
+    j = j + 1
+  next c
+  return
+blankui:
+  j = 52000
+  for c = 0 to 2000
+    poke 0 j
+    j = j + 1
+  next c
+  return
+redraw:
+  poke 7 65525
+  for d = 3 to 22
+    for c = 2 to 78
+      j = d - 3
+      j = j * 80
+      j = j + c - 3
+      j = j + 50000
+      peek i j
+      poke i 65520
+      move c d
+      call 65515  
+    next c
+  next d
+  return
+endprog:
+  cls
+  cursor on
+  end
+
+colchange:
+  rem create red outline or remove it
+  c = l + 1
+  d = m + 2
+  move c d
+  curschar i
+  if o = 0 then poke 79 65525
+  if o = 1 then poke 7 65525
+  poke i 65520
+  call 65515
+  j = o
+  if j = 1 then o = 0
+  if j = 0 then o = 1
+return
+
+initui:
+  rem ui is a screen image that is drawn before image taking the whole screen
+  rem ui is located between 52000 and 53999 (ie 80x25)
+  rem this puts the basic stuff in, but we can add more later
+  poke 5 65525
+  rem start first line
+  j = 52000  
+  poke s j 
+  for c = 1 to 78
+    j = j + 1
+    poke z j
+  next c
+  rem start side line
+  j = j + 1
+  poke t j
+  for c = 1 to 23
+    j = c * 80 + 52000
+    poke y j
+    j = j + 79
+    poke y j
+  next c
+  rem start third line
+  j = 52160
+  poke u j
+  for c = 1 to 78
+    j = j + 1
+    poke z j
+  next c
+  j = j + 1
+  poke v j
+  rem start of the bottom line
+  j = 53920
+  poke w j
+  for c = 1 to 78
+    j = j + 1
+    poke z j
+  next c
+  j = j + 1
+  poke x j
+  return
+drawui:
+  rem put ui image from memory to the screen
+  if q = 0 then poke 12 65525
+  for d = 0 to 24
+    for c = 0 to 79
+      j = d * 80
+      j = j + c
+      j = j + 52000
+      peek i j
+      f = 0
+      if i = 0 then f = 1
+      poke i 65520
+      move c d
+      if f = 0 then call 65515
+    next c
+  next d
+  return
+keyup:
+  if m = 1 then return
+  gosub colchange
+  m = m - 1
+  gosub colchange
+  return 
+keydown:
+  if m = 20 then return
+  gosub colchange
+  m = m + 1
+  gosub colchange 
+  return
+keyright:
+  if l = 1 then return
+  gosub colchange
+  l = l - 1
+  gosub colchange
+  return
+keyleft:
+  if l = 77 then return
+  gosub colchange
+  l = l + 1
+  gosub colchange
+  return
+numkey:
+  rem convert ascii to number
+  j = k - 48
+  rem now goto the memory cell it's stored
+  j = j + 51990
+  peek i j
+  rem move the cursor to the correct position
+  c = l + 1
+  d = m + 2
+  move c d
+  print chr i
+  rem now save to memory
+  j = m - 1
+  j = j * 80
+  j = j + l + 49998
+  poke i j
+return
+
+otherkey:
+  c = l + 1
+  d = m + 2
+  move c d
+  print chr k
+  j = m - 1
+  j = j * 80
+  j = j + l + 49998
+  poke k j
+return
+
+change:
+  rem change default keys
+  rem add box into ui
+  gosub box
+  rem now redraw the ui
+  gosub drawui
+  rem remove cursor
+  gosub colchange
+  rem put some stuff inside
+  move 28 8
+  print "Change characters"
+  move 26 10
+  print "Enter number to change"
+  move 26 11
+  print ">"
+  rem get number to change
+  move 27 11
+  cursor on
+  input a
+  cursor off
+  rem error uses $e to define the problem
+  $e = "Must be  0 - 9!"
+  if a > 9 then goto error
+  if a < 0 then goto error
+  move 26 12
+  print "Input a value 0 - 255"
+  move 26 13
+  print ">"
+  move 27 13
+  rem what to change it to
+  cursor on
+  input b
+  cursor off
+  $e = "Must be 0 - 255!"
+  if b > 255 then goto error
+  if b < 0 then goto error
+  j = 51990 + a
+  poke b j
+  f = 0
+  rem redraw everything
+  gosub refresh
+  return
+error:
+  gosub drawui
+  move 34 8
+  print "Error"
+  move 26 10
+  print $e
+  move 28 11
+  print "Press any key to"
+  move 31 12
+  print "continue..."
+  waitkey k
+  gosub refresh
+  return
+box:
+  rem draw a box for use of functions
+  rem we do this on the ui, so remember to use drawui afterwards
+  rem top
+  j = 52585
+  poke s j
+  for c = 1 to 22
+    j = j + 1
+    poke z j
+  next c
+  j = j + 1 
+  poke t j
+  rem middle
+  j = 52665
+  for c = 1 to 6
+    poke y j
+    rem cover the inside with spaces
+    for d = 1 to 22
+      j = j + 1
+      poke 32 j
+    next d
+    j = j + 1
+    poke y j
+    j = j + 57
+  next c
+  poke w j
+  rem bottom
+  for c = 1 to 22
+    j = j + 1
+    poke z j
+  next c
+  j = j + 1
+  poke x j
+  rem titlebar
+  j = 52745
+  poke u j
+  for c = 1 to 22
+    j = j + 1
+    poke z j
+  next c
+  j = j + 1
+  poke v j
+  return
+refresh:
+  cls
+  gosub blankui
+  gosub initui
+  gosub drawui
+  gosub redraw
+  o = 0
+  c = l + 1
+  d = m + 2
+  move c d
+  gosub colchange
+  gosub tah
+  return
+tah:
+  move 2 1
+  print "ASCII Artist"
+  poke 6 65525
+  for c = 2 to 18
+    move c 1
+    curschar i
+    poke i 65520
+    call 65515
+  next c
+  move 1 23
+  print "Press Ctl+H for help"
+  for c = 1 to 20
+    move c 23
+    curschar i
+    poke i 65520
+    call 65515
+  next c
+  return
+help:
+  gosub box
+  rem q is a colour override for drawui
+  q = 1
+  poke 1 65525
+  gosub drawui
+  gosub colchange
+  move 35 8
+  print "Help"
+  move 26 10
+  print "Use the arrows to move"
+  move 26 11
+  print "the cursor around the"
+  move 26 12
+  print "screen."
+  move 26 13
+  print "Press any key..."
+  waitkey k
+  poke 2 65525
+  gosub drawui
+  move 35 8
+  print "Help"
+  move 26 10
+  print "Use the numbers on the"
+  move 26 11
+  print "numpad to put to write"
+  move 26 12
+  print "characters to screen." 
+  move 26 13
+  print "Press any key..."
+  waitkey k
+  poke 14 65525
+  gosub drawui
+  move 35 8
+  print "Help"
+  move 26 10
+  print "Press enter to change"
+  move 26 11
+  print "the character produced"
+  move 26 12
+  print "by a number key."
+  move 26 13
+  print "Press any key..."
+  waitkey k
+  poke 6 65525
+  gosub drawui
+  move 35 8
+  print "Help"
+  move 26 10
+  print "Use ^L to load files"
+  move 26 11
+  print "and ^S to save them."
+  move 26 12
+  print "Use ^C to clear screen"
+  move 26 13
+  print "Press any key..."
+  waitkey k
+  poke 4 65525
+  gosub drawui
+  move 35 8
+  print "Help"
+  move 26 10
+  print "You can type most keys"
+  move 26 11
+  print "Press escape to exit."
+  move 26 12
+  print "Finally, have fun! :-)"
+  move 26 13
+  print "Press any key..."
+  waitkey k
+  rem well, that was long
+  rem back to default colour :-(
+  q = 0
+  gosub refresh
+  return
+cs:
+  gosub blank
+  gosub redraw
+  o = 0
+  gosub colchange                                                              
+  return
+savefile:
+  gosub box
+  gosub drawui
+  gosub colchange
+  move 35 8
+  print "Save"
+  move 26 10 
+  print "Enter an 8.3 type"
+  move 26 11
+  print "filename to save"
+  move 26 12
+  print "picture as(ie foo.bar)"
+  move 26 13
+  print ">"
+  move 27 13
+  cursor on
+  input $f
+  cursor off
+  save $f 49999 2001
+  rem Unfortunally MikeOS Basic doesn't allow us to overwrite files.
+  rem Most of you will try and tell me this is a bug with my program.
+  $e = "Cannot create file!"
+  rem R marks if the save failed
+  if R = 1 then goto error
+  gosub refresh
+  return
+loadfile:
+  gosub box
+  gosub drawui
+  gosub colchange
+  move 35 8
+  print "Load"
+  move 26 10
+  print "Enter an 8.3 type"
+  move 26 11
+  print "filename to load"
+  move 26 12
+  print "from (ie foo.bar)"
+  move 26 13
+  print ">"
+  move 27 13
+  cursor on
+  input $f
+  cursor off
+  load $f 49999
+  rem error messages always end in exclaimation marks! ;-)
+  $e = "Cannot open file!"
+  if R = 1 then goto error
+  rem s gets changed to the filesize change it back
+  s = 201
+  gosub refresh
+  return

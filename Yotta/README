@@ -1,0 +1,48 @@
+======================
+|	Yotta        |
+======================
+Copyright (C) Joshua Beck 2012
+Mail: mikeosdeveloper@gmail.com
+See 'LICENCE' for details
+
+Yotta is a clone of the famous Linux commandline text editor, nano.
+
+Frustrated working with the MikeOS text editor, I created this 
+program, 'Yotta' to be an advanced, yet small and easy to use 
+alternative to the MikeOS text editor. I was a proud linux user and
+based Yotta on my favorite linux text editor Nano.
+However I picked a much greater prefix, Yotta = 10^24.
+This is the highest standardized number prefix. It is very big number indeed.
+
+To run Yotta, simple place the binary onto a MikeOS disk and 
+select 'yotta.bin' from the CLI menu or type 'yotta' on the
+commandline. 
+
+You can also add the name of a file you want to open on launch 
+to the end of the command, proceeded by a space i.e. 'yotta example.bas'
+
+Yotta can only open unix formatted plain text files (.TXT) and
+BASIC programs (.BAS).
+
+All keyboard shortcut begin with control (^G = Control+G).
+You can press the previously mentioned shortcut to get help
+while running the program.
+
+Requires MikeOS version 4.4b3 or greater
+You can download this MikeOS beta from the mailing lists at:
+http://lists.berlios.de/pipermail/mikeos-developer/2012-August/003108.html
+
+This program requires the MikeOS BASIC interpreter. 
+It may not work on MikeOS derivatives or OS independent
+versions of the MikeOS BASIC interpreter.
+
+Files:
+  README - This document
+  LICENCE - Terms for using this program
+  CHANGES - Changelog
+  FAQ - Questions and answers
+  YOTTA.PNG - Screenshot showing file editing
+  yotta.asm - Assembly Part
+  yotta.bas.txt - BASIC part (not to be run directly)
+  yotta.bin - Binary Application
+

@@ -1,0 +1,27 @@
+Version 2.0.1
+  * Tweaked colour scheme.
+Version 2.0.0
+  * New colour scheme
+  * Animation toggle removed from main menu
+  * Change colour now modifies the whole colour scheme
+  * Added mass addition & subtraction to advanced maths
+  * Added 'about' option to main menu
+  * General code cleanup
+Version 1.2.1
+  * Fixed a bug causing the advanced calculations menu to be unreturnable.
+Version 1.2.0
+  * Now uses MB++ 3.0 beta 1 library, improves menu drawing efficiency.
+Version 1.1.0
+  * Created a new main menu.
+  * All old functions are in "Simple Calculations"
+  * Add Square/Cube function.
+  * Added Power function.
+  * Added ability to change border colour.
+  * Added ability to toggle animations.
+Version 1.0.2
+  * Division by zero now gives an error via MB++ "ERRBOX" function, rather than freezing.
+  * Updated from MB++ version 2.1.0 to 2.1.5 for smoother animations.
+Version 1.0.1
+  * Added "Exit" button since "MENUBOX" from MB++ no-longer supports using the escape key to end.
+Version 1.0.0
+  * Initial Release

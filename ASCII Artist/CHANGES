@@ -1,0 +1,54 @@
+Version 3.0.0
+  * Complete rewrite
+  * Requires MB++ library version 3.2.2 or better
+  * Add tools menus, containing whole image modifiers
+  * Added help menu
+  * Added 'revert' to file menu
+  * Uses new file format
+  * Added keymap to display custom characters
+  * Picture title is now displayed
+  * Now uses a keymap rather than number keys to create characters
+  * Cursor inverts character
+  * Now supports colour
+  * Now in a package format
+
+
+Version 2.2.2
+  * Fixed a bug that stopped the filename from being remembered
+  * Fixed bugs in the 'Save' and 'Save As' function that caused
+    the file to get deleted.
+
+Version 2.2.1
+  * Fixed 'change key' not working correctly
+
+Version 2.2.0
+  * Rewritten to use MB++ version 3.0
+
+Version 2.1.2
+  * The block cursor no longer turns off after adding a character.
+
+Version 2.1.1
+  * Attempted cursor fix
+
+Version 2.1.0
+  * "Save" is now "Save As..."
+  * New command in file menu "Save", allows you to save to current file.
+  * This has the keyboard shortcut Ctl+S.
+
+Version 2.0.0
+  * Rewriten to use MB++ (2.1.7).
+
+Version 1.2.0
+  * Optimized code for MikeOS 4.3.
+  * You can now insert text character via keystroke.
+  * Cursor is now more visible.
+
+Version 1.1.0
+  * Can now load files via command line (ie "draw foo.bar").
+
+Version 1.0.2
+  * Corrected all naming errors and title.
+  * Blocked access to a location that won't save, load or clear.
+
+Version 1.0.0
+  * Initial Release

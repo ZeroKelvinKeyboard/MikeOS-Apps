@@ -1,0 +1,37 @@
++-------------------------------+
+|	Commandline Tools	|
++-------------------------------+
+Copyright (C) Joshua Beck 2012
+Email: mikeosdeveloper@gmail.com
+These programs are all licenced under the GNU GPL v3
+See 'LICENCE' for details
+
+Commandline tools is a collection of helpful unix-like commandline utilities.
+
+These program requires the MikeOS BASIC interpreter. 
+They may not work on MikeOS derivatives or OS independent
+versions of the MikeOS BASIC interpreter.
+
+Files:
+  README - This document
+  CHANGES - Changelog
+  LICENCE - Terms for using these programs
+  INSTALL - Installation instructions
+  getbytes.bas - A commandline memory viewer
+  grep.bas - A utilty for searching files
+  head.bas - A program that reads the start of files
+  speed.bas - A program that tests the speed of your machine
+  tail.bas - A program that reads the end of files
+  Screenshots/ - Program screenshots
+  Old Version/ - Older program version
+  
+Usage Examples:
+  getbytes 200 246		display memory bytes 200 to 246 in hexadecimal
+  getbytes -a 40000 42080	display memory bytes 40000 to 42080 in ASCII
+  grep foo.bar foobar		search file 'foo.bas' for 'foobar'
+  head foo.txt			display the first ten lines of file 'foo.txt'
+  head bar.bas 18		display the first 18 lines of file 'bar.bas'
+  speed				test the machine's speed
+  head foo.txt			display the last ten lines of file 'foo.txt'
+  head bar.bas 5		display the last 5 lines of file 'bar.bas'
+

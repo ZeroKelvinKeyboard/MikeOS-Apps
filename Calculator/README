@@ -1,0 +1,31 @@
++-----------------------+
+|	Calculator	|
++-----------------------+
+Copyright (C) Joshua Beck 2012
+Email: mikeosdeveloper@gmail.com
+Calculator is licence under this GNU GPL v3
+See 'LICENCE' for details
+
+A colourful, customizable TUI Calculator program for MikeOS.
+Has addition, subtraction, multiplication, division and power.
+
+This program requires the MikeOS BASIC interpreter. 
+It may not work on MikeOS derivatives or OS independent
+versions of the MikeOS BASIC interpreter.
+
+This program requires the MB++ library
+Version 3.0.2 or better is recommended.
+
+Files:
+  README - This document
+  CHANGES - Changelog
+  LICENCE - Terms for using this program
+  INSTALL - Installation instructions
+  foo.bar - Main program
+  Screenshots/ - Program screenshots
+  Old Version/ - Older program versions
+  
+
+
+
+

@@ -1,0 +1,72 @@
+Version 3.0.0
+  * Full rewrite, now much smaller and faster
+  * Now requires MB++ library
+  * Offset markers are now in hexdecimal
+  * Offset markers are now in colour
+  * Hexdecimal column now has a space between every byte
+  * There is now sixteen bytes per line rather than 20
+  * There is now sixteen lines rather than 15
+  * Now has animations
+  * Smoother scrolling
+  * Saving files is now in bytes rather than sectors
+  * Removed warning before loading a file
+  * Removed ask before overwrite
+  * Removed commandline parameters
+  * Replaced titlescreen with about message
+  * Removed end message
+  * Changing memory values is now easier
+
+Version 2.4.2
+  * Fixed offset markers being too long on the right hand side
+
+Version 2.4.1
+  *  Fixed the program doing a screen full update after going down to the last line.
+  * When attempting to save a file that already exists, you are asked if you want to overwrite.
+  * No longer uses out of range text variables.
+
+Version 2.4.0
+  * Now accepts command line parameters, use "memedit help" for more information."
+
+Version 2.3.2
+  * Location now uses hex-decimal.
+  * GOTO box now uses hex-decimal.
+  * A double selecting of both hex-decimal and ASCII columns replaces column switching.
+
+Version 2.3.1
+  * Fix a bug where half the highlight with remain in the first column when switching columns after moving up or down.
+  * Fixed a bug where the the above caused a small part of the border to loose it's colour.
+  * Fixed method of canceling a memory edit.
+  * Now has a label for the select location.
+  * Make code formatting better with more comments.
+  * All the naming is now consistent.
+  
+Version 2.3.0
+  * Fixed the line bug (finally)
+  * No-longer refreshes the screen when scrolling up and down within the screen, this makes it much faster when not getting new memory
+  * You can now put hex-decimal into memory rather than decimal
+
+Version 2.2.0
+  * Fixed selected byte not changing colour on startup, goto, pageup/down
+  * Selected byte is now highlighted
+  * Goto takes into account your current position
+  * Moved address number to the right a bit
+  * New startup sound
+  * Ability to load and save bits of memory
+  
+Version 2.1.0
+  * Fixed a bug where the address number would display incorrectly for numbers above 32767
+  * Added colour throughout the program
+  * Address number now follows cursor
+
+Version 2.0.0
+  * Added title screen
+  * There are now 15 lines rather than 16
+  * Added selection cursor
+  * Added page up/down
+  * Can now view kernel and program
+  * Increased popup size
+  * Changed memory values is now simplified
+  * Fixed a bug in the address bar causing the number 10000 to align incorrectly
+  
+Version 1.0.0
+  * Initial Release

@@ -1,0 +1,14 @@
+Copy 'draw.bas' into the programs folder inside a MikeOS source folder and run 
+the build script appropriate for your operating system (located in the root directory). 
+
+A floppy disk image will be generate in the 'disk_images' folder, 
+which you can run in an emulator or write to a physical floppy disk and boot off of.
+
+You can run the program by selecting it in the OS menu or typing 'draw' at the commandline.
+
+This program requires the latest beta version of MikeOS (4.3b5).
+Download this version off the mailing lists.
+
+This program requires the MikeOS BASIC interpreter. 
+It may not work on MikeOS derivative or OS independent versions of the
+MikeOS BASIC interpreter.

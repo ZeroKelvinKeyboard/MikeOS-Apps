@@ -1,0 +1,34 @@
++-----------------------+
+|	ASCII Artist	|
++-----------------------+
+Copyright (C) Joshua Beck 2012
+Email: mikeosdeveloper@gmail.com
+This program is licence under this GNU GPL v3
+See 'LICENCE' for details
+
+ASCII Artist is a MikeOS program for creating text artwork.
+
+This program requires the MikeOS BASIC interpreter. 
+It may not work on MikeOS derivatives or OS independent
+versions of the MikeOS BASIC interpreter.
+
+This program requires the MB++ library.
+Version 3.2.2 is recommended, download here:
+http://code.google.com/p/mikebasic-applications/downloads/detail?name=libMB%2B%2B-3.2.2.tar.gz&can=2&q=
+
+Library version 3.0.2, included with the stable MikeOS disk images will not work.
+Version 3.2.1 as included with the beta builds will work, but it's slightly buggy.
+
+Files:
+  README - This document
+  CHANGES - Changelog
+  LICENCE - Terms for using this program
+  INSTALL - Installation instructions
+  draw.bas - Main program
+  aapconv.bas - New file format converter
+  old.map - The old keyboard map, numbers replaced with block characters 
+  file_specification - An explaination of the new file format
+  Screenshots/ - Program screenshots
+  Old Version/ - Older program version
+  Examples/ - Some example picture files
+  

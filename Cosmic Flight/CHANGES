@@ -1,0 +1,14 @@
+Version 2.0.1:
+  * Screen is now cleared before intro
+  * Now packaged in .zip format so the package can be read by more programs
+  * All documentation now used Windows-style line ending for compatibility
+Version 2.0.0:
+  * Weapons and Difficulty scaling more dynamic
+  * Added title screen
+  * Many visual improvements
+  * Now shows highest energy and current weapon
+  * Fixed a bug in which a beam went over the edges
+  * Item and Powerup distribution now scales better 
+  * Game speed increased
+Version 1.0.0:
+  * Initial Release

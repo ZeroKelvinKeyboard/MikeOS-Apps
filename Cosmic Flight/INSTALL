@@ -1,0 +1,16 @@
+Copy 'cf.bas' into the programs folder inside a MikeOS source folder and run 
+the build script appropriate for your operating system (located in the root directory). 
+
+A floppy disk image will be generate in the 'disk_images' folder, which you can run in an emulator
+or write to a physical floppy disk and boot off of.
+
+From there start the program 'cf.bas' from the menu interface or commandline.
+
+MikeOS Releases can be found at:
+http://developer.berlios.de/project/showfiles.php?group_id=9167
+
+The latest version can be downloaded from:
+http://mikeos.berlios.de/mikeos-4.3.1.zip
+
+This program requires the MikeOS BASIC interpreter. It may not work on MikeOS derivative or OS
+independent versions of the MikeOS BASIC interpreter.

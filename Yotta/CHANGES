@@ -1,0 +1,83 @@
+Version 2.00x10^24
+- Source code released, now under GNU GPL v3 licence
+- Fixed a bug causing files to have an extra garbage character added.
+
+Version 1.03x10^24
+- ???
+
+Version 1.02x10^24
+ - Fixed removing/cutting a line loosing the cursor alignment
+
+Version 1.01x10^24
+ - Fixed Page Up/Down loosing cursor alignment
+ - In Y/N/C prompts you can now hit enter for yes and escape for cancel
+ - Binary filename changed to lowercase to work with MikeOS build script
+
+Version 1.00x10^24
+ - First full release
+ - Fixed inconsistant naming
+ - Fixed version numbers
+ - Created package
+
+Version 3.01x10^23
+ - Page Up/Down are now much faster
+ - WriteOut now asks to save to the current file
+ - Close without saving warning now allows a single key
+ - Added warning on attempt to load a file with unsaved changes
+ - Added memory allocation map to help screen
+ - Cursor is now reset after Read File
+ - Line length is now 80 for long lines
+ - Fixed current line number being incorrect after Read File
+ - Fixed End of Line not working on long lines (>80 characters)
+ - Fixed Up/Down keys not working properly on long lines
+ - Fixed backspace producing blank characters in long lines
+
+Version 3.00x10^23
+ - Fixed editing of new files acting weird.
+ - Fixed incorrect number of lines for files ending in a line feed.
+ - Read File/WriteOut now display 'line' instead of 'lines' if there is only one.
+ - Added file modified notifier
+ - Added warning on closing with unsaved changes
+ - Input functions now show cursor
+ - Added cut/uncut functions
+
+Version 2.01x10^23
+ - Page Down now goes to the last line
+ - Fixed not being able to scroll down to newly created lines at the end of file
+ - Fixed editor freezing when using end of line function on the last line is it doesn't finish with a line feed
+ - Cursor position now displays 'EOF' as the character number if end of file character is selected
+ - Fixed end of file character being duplicated with a file ending with a line feed
+
+Version 2.00x10^23
+  - Added Read File function
+  - Added Write Out function
+  - Fixed Page Up/Down functions getting cursor out of sync
+  - Added Remove Line function
+  - Key combinations for unimplimented function no-longer crash the program
+  - Cleaned up help page
+  - Crash error message much cleaner
+
+Version 1.04x10^23
+  - Page Up/Down no longer mess up the line number
+  - Page Up/Down no longer cause the screen & memory to get out of sync.
+  - Page Down no longer goes past the end of file
+  - Scrolling down no longer goes past the end of file.
+  - There is now a DC1 character marking the end of the file
+  - Fix a freeze when getting cursor position at the end of the file
+
+Version 1.03x10^23
+ - Added Page Up/Down
+ - Fixed 'End of File' function freezing the program
+
+Version 1.02x10^23
+ - Can now edit files
+ - Help shows the progress of implimented commands
+ - Added start/end of file functions
+
+Version 1.01x10^23
+ - Initial Release
+ - Can display text file given as commandline parameters
+ - Can move cursor though file
+ - Can go to start of line, end of line
+ - Can get help and exit
+ 
