@@ -1,0 +1,126 @@
+Version 3.2.3
+  * Fixed a bug in the border function causing the title to be force to the same colour
+  * Fixed a bug in the end program function causing ending animations to always be white
+  
+Version 3.2.2
+  * Changed library information
+  * Fixed error in array storage function
+  * Fixed a bug in set title function causing it to always print in white
+
+Version 3.2.1
+  * Fixed errors in starting animations
+  * Fixed menu functions not recignising the escape key
+  * Fixed reported version number
+
+Version 3.2.0
+  * Fixed errors in animations
+  * Menus are now more efficient
+  * Added a code to menu functions for the escape key
+
+Version 3.1.1
+  * Running library at commandline now prints version number
+  * Animations now more efficient
+  * Fixed communication error in serial communication testing
+  * Double input function will not prompt for input on blank strings
+  * Fixed communication error in serial packet reciever
+
+Version 3.1.0
+  * Added serial communications tools for working with data packets
+
+Version 3.0.2
+  * Formatted text function is now much more efficient
+  * Fixed starting animations not printing the correct title
+  * Fixed array functions destroying variables
+  * Removed file selector function
+  * String length errors now tell you the string name
+  * Removed unused code
+
+Version 3.0.1
+  * Now uses a release version of MikeOS
+  * Fixed library error occuring when opening and box with V > 38
+
+Version 3.0.0
+  * Added a function for saving ink colour and cursor position
+  * This is now used by many functions
+  * Fixed borders not drawing properly
+  * Border now works much more efficiently
+  * Content section is now optional
+  * Added fatal error function
+  * Fatal error when an error message is too long
+  * Simplified border function
+  * Attempted fix on file selector function
+  * Fixed the variable stack not retrieving numbers correctly
+  * Errors in the variable stack are now fatal
+  * Menus are now smoother
+  * Set Title function now fill the whole titlebar
+  * Set Title function will not run if the title is too long
+
+
+Version 3.0b3
+  * Updated to take advantage of more new commands
+  * There is now only one array
+  * Array functions now store integers rather than bytes
+  * Extended memory functions now access memory from other segments
+  * Added new extended memory function to initalise and set segment
+  * Added variable stack to preserve working variables
+  * Variable stack now used in many functions
+  * Formatted text function now starts at the cursor position
+
+Version 3.0b2
+  * Fixed incorrect variables being used for runlevel in many functions
+
+Version 3.0b1
+  * Fixed runlevels for end animation
+  * Fixed results not being properly returned from box functions
+
+Version 3.0a1
+  * Full rewrite for increased efficiency and to take advantage of new commands
+  * Simplified box functions
+  * Uses different variables for most functions
+  * Now uses native colour code rather than colour hack
+
+Version 2.2.0
+  * Library is now independant rether than intergrated into programs
+
+Version 2.1.7
+  * Rewrote arrays to use different variables
+
+Version 2.1.6
+  * Fixed arrays incorrectly using the error function
+
+Version 2.1.5
+  * Fixed file selector
+  * Menus scrolling is much smoother
+  * Added formatted text function
+  * Added ASCII Artist picture convertor
+  * Arrays are now easier to use
+
+Version 2.1.0
+  * Added box and border animations
+  * Added box redraw
+
+Version 2.0.0
+  * Added menu function
+  * Added file selector function
+  * Changed the way the title system works
+  * Added number output function
+  * Added double input function
+  * Added program starter
+
+Version 1.2.1
+  * Changed string variable used by input boxes
+  * Fixed title being partially coloured
+
+Version 1.2.0
+  * Corrected array offsets
+  * Fixed highlight functions destroying highlight colour
+  * Extended examples
+
+Version 1.1.0
+  * Box colour now uses a seperate variable to borders
+  * Added array storage
+  * Added text colouring hack
+  * Added text highlighting
+
+Version 1.0.0
+  * Initial Release

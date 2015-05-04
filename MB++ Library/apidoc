@@ -1,0 +1,251 @@
+===ANCITEXT===
+
+Input:
+(cursor position)		Starting Position/Left Margin
+X				Right Margin
+Y				Maximum Line
+V				Text Memory Location
+
+Output:
+(None)
+
+
+===ARRAYGET===
+Input:
+X = position
+
+Output:
+V = data
+
+
+===ARRAYPUT===
+Input:
+X = position
+V = data
+
+Output:
+(none)
+
+===ASKBOX===
+=Input=
+$5			Title
+$6			Message
+=Output=
+V			Result (0 = no, 1 = yes)
+
+
+===DINBOX===
+=Input=
+$5			Title
+$6			Message 1
+$7			Message 2
+T			Box Colour
+V			Input Type
+				0 = both numeric
+				1 = both text
+				2 = numeric, text
+				3 = text, numeric
+=Output=
+$6, $7			Text Inputs 1 & 2 (if text)
+A, B			Numeric Inputs 1 & 2 (if numeric)
+
+
+===ERRBOX===
+=Input=
+$8			Error Message
+=Output=
+Nothing
+
+===FATALERR===
+=Input=
+$8			Error Message
+=Output=
+Nothing
+
+
+===INPBOX===
+=Input=
+$5			Title
+$6			Prompt String
+V			Input Type (0 = Numeric, 1 = Text)
+=Output=
+$6			Text Input (if text)
+V			Numeric Input (if numeric)
+
+
+===MENUBOX===
+=Input=
+$5			Title
+$6			Menu Options
+
+=Output=
+V			Menu Item Selected
+				1-5	Items 1-5 respectively
+				6	Menu Cancelled
+
+===MESBOX===
+=Input=
+$5			Title
+$6			Message Contents
+
+=Output=
+Nothing
+
+
+===NUMBOX===
+=Input=
+$5			Title
+$6			Message 1
+$7			Message 2
+A			Number 1
+B			Number 2
+=Output=
+Nothing
+
+
+===REFRESH===
+=Input
+Nothing
+=Output=
+Nothing
+=Notes=
+Draws the border, title and calls the CONTENT section of the program if it exists.
+
+===TITLE===
+Draws the title in the titlebar with the text and colour set in SETTITLE.
+
+===BORDER===
+=Input=
+T			Border colour
+Draws the outer border.
+
+
+
+menu draw
+ - draw menu items from $6
+ - draw selector
+ - stop selector going onto blank items
+ - selector line is in V
+ - print help string????
+ - no selector until after character after 0x20
+ 
+ 
+Special Variables
+V			Common Output Variable (possibly destroyed?)
+C			Text Colour
+H			Highlight Colour
+T			Box Border Colour
+Z			Outer Border Colour
+
+ 
+
+
+===SAVEVAR===
+=Input=
+J, W, V, X, Y			Variables to save
+=Output=
+Nothing
+
+===LOADVAR===
+=Input=
+Nothing
+=Output=
+J, W, V, X, Y			Previously saved variables
+
+
+===BOXPRINT===
+=Input=
+$6				Lines to print, separated by '|'
+$7				Optional extention to $6
+=Output=
+Nothing
+
+
+===STARTPRG===
+=Input=
+Nothing
+=Output=
+Nothing
+=Notes=
+Nessecery before calling any other functions
+
+
+Changes:
+Removed animations
+Changes to string scheme to comply with MikeOS BASIC
+$5 is now title
+$6 is now content 
+$7 is now extended content (if $6 ends in \7)
+$8 is now errors/other
+Length checks now removed
+
+Simplified list code
+Data Sections now preloaded (speed up for box drawing)
+
+64000: (none) - Reserved Area (168 bytes)
+64160: ***NEW*** BORDER - Characters to use
+64168: XPUT/XMEM - Assembly for extended byte saves
+64184: XGET/XMEM - Assembly for extended byte loads
+64200: BOXSAVE/BOXREST - Characters below box (400 bytes)
+64600: BOXSAVE/BOXREST - Corrosponding Colour Map (400 bytes)
+65000: ARRAYGET/ARRAYPUT - Array space (200 bytes)
+65200: SAVEVAR/LOADVAR - Variable storage space (200 bytes)
+65400: ***NEW*** BOX - Box Data Area (preload)
+65408: LOADBOX - Assembly for get file list (10 bytes)
+65418: OPENBOX - Temporary storage of 'V'
+65420: ASKBOX - Button selected, boolean (0/1 = Y/N)
+65421: SAVEVAR/LOADVAR - Variable store counter
+65422: XGET/XPUT - Expanded memory data
+65424: XGET/XPUT - Expanded memory location
+65426: SAVEVAR/LOADVAR - Temporary variable storage.
+65428: (none) - Unused (2 bytes)
+65430: ANCITEXT - Maximum row
+65431: ANCITEXT - Maximum column
+65432: LOADBOX - File list location
+65434: LOADBOX - Temporary load location storage
+65436: XGET/XPUT - Segment number
+65438: (none) - Unused (1 bytes)
+65439: SETTITLE/TITLE - Title colour
+65440: SETTITLE/TITLE - Title text (75 bytes)
+65515: (none) - Unused (16 bytes) 
+
+items started at
+number of items printed
+
+data sections (preload)
+BORDERDATA
+ - Top Left
+ - Top Right
+ - Titlebar Left
+ - Titlebar Right
+ - Bottom Left
+ - Bottom Right
+ - Vertical
+ - Horizontal
+
+BOXDATA
+ - Top Left
+ - Top Right
+ - Titlebar Left
+ - Titlebar Right
+ - Bottom Left
+ - Bottom Right
+ - Vertical
+ - Horizontal
+
+ Horizontal
+ 20	Left Border
+ 21	Spacing
+ 22	Start of Content
+ 57	End of Content
+ 58	Spacing
+ 59	Right Border
+ 
+ Vertical
+ 8	Top Border
+ 9	Titlebar
+ 10	Titlebar Border
+ 11	Start of Content
+ 16	End of Content
+ 17	Bottom Border
+ 

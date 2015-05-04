@@ -1,0 +1,31 @@
++-----------------------+
+|	MB++ Library	|
++-----------------------+
+Copyright (C) Joshua Beck 2012
+Mail: mikeosdeveloper@gmail.com
+See 'LICENCE' for details
+
+The MB++ library is a TUI library, featuring menus, borders and animations.
+
+The library contains a large collection of varied functionality and is used
+by many MikeOS BASIC programs, including several on the disk image. This
+program preforms no direct functionality.
+
+Documentation on the library is avaliable through the wiki at: 
+http://mikebasicplusplus.wikispot.org/
+
+Requires MikeOS 4.3 or greater.
+You can download it at: http://mikeos.berlios.de/mikeos-4.3.1.zip
+
+This program requires the MikeOS BASIC interpreter. 
+It may not work on MikeOS derivatives or OS independent
+versions of the MikeOS BASIC interpreter.
+
+Files:
+  README - This document
+  LICENCE - Terms for using this program
+  CHANGES - Changelog
+  INSTALL - Installation instructions
+  mbpp.bas - Library File
+  Old Versions/ - Older versions of this program
+  

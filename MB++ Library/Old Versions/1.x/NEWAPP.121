@@ -1,0 +1,418 @@
+rem a base for MikeBASIC applications
+rem it has a few functions to get you started
+rem it uses numerical variables k and w - z and text a - i
+rem here ae the sections explained:
+rem start, stuff that are run before we start the main loop
+rem message, provides an example of mesbox usage
+rem input, an example of inpbox usage w = 1 for text 0 for num
+rem content, used to put text to screen after a refresh and at startup
+rem mesbox, uses variables to do a message box
+rem inpbox, create a box that accepts text of numerical input
+rem keyboard, gets input and subs to a section
+rem clear, reloads the screen to remove stuff printed on like box
+rem defcol, assembley that prints coloured text
+rem endprog, cleans everything up and finishes
+rem border, create a border with titlebar in colour (z)
+rem title, prints the title ($i) in colour (t)
+rem box, draws a box in the middle in colour (z)
+start:
+  cursor off
+  gosub defcol
+  z = 7
+  gosub border
+  $t = "Application"
+  u = 7
+  gosub title
+  gosub content
+  gosub message
+
+keyboard:
+  waitkey k
+  if k = 27 then gosub endprog
+  if k = 'i' then gosub input
+  if k = 'I' then gosub input
+  if k = 'e' then gosub error
+  if k = 'E' then gosub error 
+  goto keyboard
+
+message:
+  rem example use of mesbox
+  rem set lines
+  rem we can't use a or d
+  t = 5
+  $t = "Box Title"
+  $b = "This is an application base."
+  $c = "Maximum length--------------------->"
+  $e = "I used a lot of stuff from MEMVIEW"
+  $f = "and DRAW I modified it fit together."
+  $g = "It makes starting new programs easy"
+  gosub mesbox
+  return
+
+input:
+  t = 2
+  rem inpbox example
+  $t = "Input Test"
+  $b = "Input a string of text"
+  $c = "Input boxes can get text or numbers"
+  v = 1
+  gosub inpbox
+  $j = $t
+  gosub clear
+  return
+
+error:
+  t = 6
+  rem error example
+  $e = "Cannot give example of an error!"
+  gosub errbox
+  return
+
+content:
+  rem main stuff goes here
+  move 2 23
+  print "Press i for input"
+  move 30 23 
+  print "Press Escape to exit default application."
+  move 30 22
+  print "Press E for an error."
+  move 2 22
+  print "Input is:"
+  move 11 22
+  print $i
+  x = 8
+  y = 23
+  c = 1
+  gosub colour
+  h = 7
+  gosub highlight
+  move 2 3
+  print "Data to be put into array"
+  $v = "a"
+  for e = 2 to 41
+    a = e
+    move a 3
+    curschar v
+    gosub arrayput
+  next e
+  for e = 2 to 41
+    a = e
+    move a 4
+    gosub arrayget
+    print chr a
+  next e
+  return
+
+mesbox:
+  rem for some reason using $d makes basic very sad
+  rem and $a fails after 25 char
+  cursor off
+  gosub box
+  move 22 9
+  print $t 
+  move 22 11
+  print $b
+  move 22 12
+  print $c
+  move 22 13
+  print $e
+  move 22 14 
+  print $f
+  move 22 15
+  print $g
+  move 22 16
+  print "Press any key to continue..."
+  waitkey k
+  gosub clear
+  return
+
+inpbox:
+  cursor off
+  gosub box   
+  move 22 9 
+  print $t
+  move 22 12
+  print $b
+  move 22 13
+  print $c
+  move 22 14
+  print ">"
+  move 23 14
+  cursor on
+  a = 0
+  $i = ""
+  if v = 0 then input a
+  if v = 1 then input $i
+  cursor off
+  gosub clear
+  return
+
+errbox:
+  gosub box
+  move 22 9
+  print "Error"
+  move 22 12
+  print $e
+  move 22 14
+  print "Press any key to continue."
+  cursor on
+  move 48 14
+  waitkey k
+  cursor off
+  gosub clear
+  return
+clear:
+  cls
+  gosub border
+  $t = "Application"
+  gosub title
+  gosub content
+defcol:
+  rem Now for the colour routine, thanks wisecracker for this.
+  rem This allows us to print text colours other than white
+  rem a text byte is stored at 65520 and a colour at 65525
+  poke 156 65515
+  poke 80 65516
+  poke 83 65517
+  poke 81 65518
+  poke 184 65519
+  poke 32 65520
+  poke 9 65521
+  poke 183 65522
+  poke 0 65523
+  poke 179 65524
+  poke 7 65525
+  poke 185 65526
+  poke 1 65527
+  poke 0 65528
+  poke 205 65529
+  poke 16 65530
+  poke 89 65531
+  poke 91 65532
+  poke 88 65533
+  poke 157 65534
+  poke 195 65535
+  return
+
+endprog:
+  cls
+  cursor on
+  end
+
+border:
+  rem character to print (box corner)
+  peek j 65525
+  poke z 65525
+  poke 218 65520
+  rem now call it
+  call 65515
+  rem there! that wasn't too hard
+  rem top line
+  poke 196 65520
+  for x = 1 to 78
+    move x 0
+    call 65515
+  next x
+  rem the top edges
+  move 79 0
+  poke 191 65520
+  call 65515
+  move 0 1
+  poke 179 65520
+  call 65515
+  move 79 1
+  call 65515
+  move 0 2
+  poke 195 65520
+  call 65515
+  move 79 2
+  poke 180 65520
+  call 65515
+  poke 196 65520
+  rem 2nd line
+  for x = 1 to 78
+    move x 2
+    call 65515
+  next x
+  rem sides
+  poke 179 65520 
+  for x = 3 to 23
+    move 0 x
+    call 65515
+    move 79 x
+    call 65515
+  next x
+  rem bottom corners
+  move 0 24
+  poke 192 65520
+  call 65515
+  move 79 24
+  poke 217 65520
+  call 65515
+  rem 3rd and bottom line
+  poke 196 65520  
+  for x = 1 to 78
+    move x 24
+    call 65515
+  next x
+  poke j 65525
+  return
+title:
+  poke u 65525  
+  move 2 1
+  print $t
+  rem change colour
+  for x = 2 to 76
+    move x 1
+    curschar w
+    poke w 65520
+    call 65515
+  next x
+  return
+
+box:
+  rem lets have fun and draw a box for features!
+  peek j 65525
+  poke t 65525
+  move 20 8
+  poke 218 65520
+  call 65515
+  move 59 8
+  poke 191 65520
+  call 65515
+  rem first line
+  poke 196 65520
+  for x = 21 to 58
+    move x 8
+    call 65515
+  next x
+  rem continue edges
+  move 20 9
+  poke 179 65520
+  call 65515
+  move 59 9
+  call 65515
+  move 20 10
+  poke 195 65520
+  call 65515
+  move 59 10
+  poke 180 65520
+  call 65515
+  rem now the sides
+  poke 179 65520
+  for x = 11 to 16
+    move 20 x
+    call 65515
+    move 59 x
+    call 65515
+  next x
+  rem bottom corners
+  move 20 17
+  poke 192 65520
+  call 65515
+  move 59 17
+  poke 217 65520
+  call 65515
+  rem second line
+  poke 196 65520
+  for x = 21 to 58
+    move x 10
+    call 65515
+  next x
+  rem third and final line
+  poke 196 65520
+  for x = 21 to 58
+    move x 17
+    call 65515
+  next x
+  rem remove text inside box
+  move 21 9
+  print "                                      "
+  move 21 11
+  print "                                      "
+  move 21 12
+  print "                                      "
+  move 21 13
+  print "                                      "
+  move 21 14
+  print "                                      "
+  move 21 15
+  print "                                      "
+  move 21 16
+  print "                                      "
+  rem remove colour from inside
+  poke 7 65525
+  for x = 21 to 58
+    move x 9
+    curschar w
+    poke w 65520
+    call 65515
+  next x
+  for y = 11 to 16
+    for x = 21 to 58
+      move x y
+      curschar w
+      poke w 65520
+      call 65515
+    next x
+  next y
+  poke j 65525
+  rem ok, glad that's done. Isn't box drawing fun! :-(
+  rem now we can add features without having to do this again
+  return
+highlight:
+  j = h
+  j = j * 16
+  j = j + c
+  poke j 65525
+  move x y
+  curschar j
+  move x y 
+  poke j 65520
+  call 65515
+  return
+colour:
+  poke c 65525
+  move x y 
+  curschar j
+  move x y
+  poke j 65520
+  call 65515
+  return
+arrayget:
+  if $v = "a" then j = 0
+  if $v = "b" then j = 100
+  if $v = "c" then j = 200
+  if $v = "d" then j = 300
+  j = j + 60000
+  if $v = "a" then x = a
+  if $v = "b" then x = b
+  if $v = "c" then x = c
+  if $v = "d" then x = d
+  if x > 99 then $e = "Array over maximum"
+  if x < 0 then $e = "Number below zero"
+  if x > 99 then goto error
+  if x < 0 then goto error
+  j = j + x
+  if $v = "a" then peek a j
+  if $v = "b" then peek b j
+  if $v = "c" then peek c j
+  if $v = "d" then peek d j
+  return
+arrayput:
+  if $v = "a" then j = 0
+  if $v = "b" then j = 100
+  if $v = "c" then j = 200
+  if $v = "d" then j = 300
+  j = j + 60000
+  if $v = "a" then x = a
+  if $v = "b" then x = b
+  if $v = "c" then x = c
+  if $v = "d" then x = d
+  if x > 99 then $e = "Array over maximum"
+  if x < 0 then $e = "Number below zero"
+  if x > 99 then goto error
+  if x < 0 then goto error
+  j = j + x
+  poke v j
+  return
