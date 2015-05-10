@@ -2,6 +2,9 @@ bits 16
 org 32768
 %include 'mikedev.inc'
 
+; Launcher code --- Starts the control section (BASIC part)
+; Uses BASIC/Assembly hybrid because interpreted BASIC is easier but assembly
+; is efficient.
 run_main:
 	mov word ax, program_start
 	mov word bx, program_end
@@ -12,6 +15,9 @@ run_main:
 	je crash
 	ret
 
+; Crash handler --- The program crash indicator should be zero if the program
+; ended successfully, otherwise assume the control section (BASIC part) messed
+; up somehow.
 crash:
 	call os_wait_for_key
 	call os_clear_screen
@@ -21,6 +27,10 @@ crash:
 	
 	crash_msg			db "Yotta has crashed :(", 13, 10, 0
 
+; A whole heap of commands that make up the command section. Can be called by
+; the control section, see 'doc/registers.txt' for the information on the
+; calling procedure and 'doc/command.txt' for information on commands and
+; parameters involved.
 phase_cmd:
 	mov word ax, [cmd]
 	
@@ -30,6 +40,7 @@ phase_cmd:
 	cmp ax, 1
 	je remove_bytes_cmd
 
+	; Should be readded eventually
 	cmp ax, 2
 ;	je search_cmd
 	
@@ -45,9 +56,6 @@ phase_cmd:
 	cmp ax, 6
 	je input_caption
 	
-	cmp ax, 7
-	je run_basic_cmd
-
 	cmp ax, 8
 	je render_text
 
@@ -373,21 +381,6 @@ ask_caption:
 	ret
 	
 	.ask_prompt				db '(Y)es/(N)o/(C)ancel', 0
-	
-run_basic_cmd:
-	; IN: p1 = start of code, p2 = size of code
-	call os_clear_screen
-	mov word ax, [p1]
-	mov word bx, [p2]
-	mov si, 0
-	call os_run_basic
-	call os_print_newline
-	mov si, basic_end_string
-	call os_print_string
-	call os_clear_screen
-	ret
-	
-	basic_end_string		db 	'Finished running BASIC program', 0
 
 render_text:
 	; IN: p1 = first char on screen, p2 = end of text
@@ -576,6 +569,7 @@ shift_left_text:
 	int 10h
 	ret
 
+; Registers used by the control section to run sections of the command section.
 ; See doc/registers.txt for information about this data
 registers:
 	cmd				dw 0
@@ -589,6 +583,11 @@ registers:
         data_pointer			dw cmd
        	phase_cmd_pointer		dw phase_cmd
 	
+; Include the control section (BASIC part) after the command section (binary 
+; part). Contains BASIC programming but not an independent program, needs
+; the command section and the launcher to run properly.
+; Has to have '.txt' on the end or the build script will think it is a
+; stand alone program and add it to disk.
 program_start:
 incbin 'yotta.bas.txt'
 program_end:
