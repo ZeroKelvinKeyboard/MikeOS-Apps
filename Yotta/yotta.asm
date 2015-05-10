@@ -143,17 +143,17 @@ draw_cmd:
 		ret
 		
 	key_strings			db 	'^G Get Help  ', 0
-	asdfasdf			db	'^O WriteOut  ', 0
-	asdfasdg			db	'^S Strt File ', 0
-	asdfasdh			db	'^Y Prev Page ', 0
-	asdfasdi			db	'^K Cut Text  ', 0
-	asdfasdj			db	'^Z Cur Pos ', 13, 10, 0
-	asdfasdk			db	'^X Exit      ', 0
-	asdfasdl			db	'^R Read File ', 0
-	asdfasdm			db	'^F End File  ', 0
-	asdfasdn			db	'^V Next Page ', 0
-	asdfasdo			db	'^U UnCut Txt ', 0
-	asdfasdp			db	'^L Del Line  ', 0
+	        			db	'^O WriteOut  ', 0
+	        			db	'^S Strt File ', 0
+	        			db	'^Y Prev Page ', 0
+	        			db	'^K Cut Text  ', 0
+	        			db	'^Z Cur Pos ', 13, 10, 0
+	        			db	'^X Exit      ', 0
+	        			db	'^R Read File ', 0
+	        			db	'^F End File  ', 0
+	        			db	'^V Next Page ', 0
+	        			db	'^U UnCut Txt ', 0
+	        			db	'^L Del Line  ', 0
 	
 	name_and_version		db 	'yotta 2.00x10^24', 0
 	
@@ -576,6 +576,7 @@ shift_left_text:
 	int 10h
 	ret
 
+; See doc/registers.txt for information about this data
 registers:
 	cmd				dw 0
 	p1				dw 0

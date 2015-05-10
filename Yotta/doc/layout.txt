@@ -1,0 +1,15 @@
+Lines
+0       Titlebar
+1       Padding
+2       Text Area Start
+20      Text Area End
+21      Padding
+22      Caption Bar
+23      Shortcuts Bar (line 1)
+24      Shortcuts Bar (line 2)
+
+Titlebar
+Left    Program name & version
+Middle  Buffer name
+Right   Modified indicator
+

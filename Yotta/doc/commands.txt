@@ -1,0 +1,116 @@
+Command: insert_bytes
+Command Number: 0
+Inputs:         P1 = starting location
+                P2 = size of data to move
+                P3 = number of bytes to move data forward
+Outputs:        None 
+Description: Moves a block of data after the starting location forward by a
+number of bytes. Usually used to make space for text inserts.
+
+Command: remove_bytes
+Command Number: 1
+Inputs:         P1 = starting location
+                P2 = current size of data
+                P3 = number of bytes to remove
+Outputs:        None
+Description: Removes a number of bytes from the beginning of a data block and
+shifts the remaining data backward to fill the new space. Usually used to
+remove deleted text.
+
+Command: redraw
+Command Number: 3
+Inputs:         None
+Outputs:        None
+Description: Clears the screen and redraws the titlebar with the title and
+version at the top of the screen and the keyboard shortcuts at the bottom. Note
+that this command only draws "static" information, it will not draw the
+filename, file status or messages.
+
+Command: set_filename
+Command Number: 4
+Inputs:         P1 = filename pointer
+Outputs:        None 
+Description: Sets the filename displayed in the centre of the titlebar to the
+name given by a pointer. The filename pointer can be set to zero if the file
+being edited has not been assigned a filename and this function will use a
+replacement string that indicates an unnamed file.
+Must be a zero terminated string, the filename will remain until the screen is
+redrawn and the screen must be redrawn before setting a new filename.
+
+Command: set_caption
+Command Number: 5
+Inputs:         P1 = caption string pointer 
+Outputs:        None 
+Description: Sets a caption string displayed centred on the line between the
+keyboard shortcuts at the bottom and the last line of text (the caption bar). 
+The string given must be a zero terminated string and contain equal or less 
+than 76 characters of text. The caption will remain until the screen is redrawn
+or a new caption is set. Square brackets will be automatically added around the
+caption.
+
+Command: input_caption
+Command Number: 6
+Inputs:         P1 = prompt string pointer
+                P2 = input buffer pointer
+Outputs:        (input buffer changed)
+Description: Displays the prompt string given at the left of the caption bar
+and allows the user to enter input, which is put into the input buffer as a
+null terminated string. The input prompt cannot be cancelled but may be a blank
+string (only a null terminator).
+
+Command: render_text
+Command Number: 8
+Inputs:         P1 = Screen start pointer
+                P2 = End of file pointer
+Outputs:        None
+Description: Draws text from the given location to the text area with lines
+ending in UNIX-style newline characters until either the text reaches a line
+outside the text area or the text finishes the the end of the file. Text lines
+spanning beyond the right most position will be cut off and not wrapped.
+
+Command: set_modified
+Command Number: 9
+Inputs:         P1 = Modifier indicator status (0 = non visible, 1 = visible)
+Outputs:        None
+Description: Sets or removes an indicator in the titlebar that shows the file
+being edited has been modified since it was last saved.
+
+Command: clear_text_area
+Command Number: 10
+Inputs:         None
+Outputs:        None
+Description: Clears all text characters from the text area without changing any
+other part of the interface.
+
+Command: shift_right_text
+Command Number: 11
+Inputs:         P1 = starting text column
+                P2 = text row
+Outputs:        None
+Description: Copies all text in the given row, starting from the given column,
+one position to the right. The original character in the given column with be
+present at both old and new positions and the right-most character will be
+overwritten if it exists.
+
+Command: shift_left_text
+Command Number: 12
+Inputs:         P1 = starting text column
+                P2 = text row
+Outputs:        None
+Description: Copies all text in the given row, between the given column and
+the right most position on the line, to the left on position. The character at
+the given column will be overwriten by the character right of it and the
+rightmost character will be removed from the old position rather than be 
+duplicated.
+
+Command: ask_caption
+Command Number: 13
+Inputs:         P1 = prompt string pointer
+Outputs:        P2 = response (0 = Yes, 1 = No, 2 = Cancel)
+Description: Presents the prompt string at the left of the caption bar and
+prompts the users to respond as yes, no or cancel by pressing the first letter
+of each option. The response is store in a register to be used later.
+
+
+
+

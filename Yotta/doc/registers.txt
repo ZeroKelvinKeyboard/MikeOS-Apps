@@ -1,0 +1,70 @@
+doc/registers.txt --- Descriptions of register operation
+
+The register command system exist to facilitate communication between the BASIC
+part and the binary part of the Yotta Text Editor. The BASIC part operates the
+main program logic and the binary part recieves and acts on commands. The BASIC
+and binary parts will be known in this document as the "control section" and
+the "command section" respectively.
+
+The control section requires that some commands be performed in the command
+section for the purpose of better performance or because the actions are not
+available to the command section. To accomplish this, the control section sets
+"registers" in the memory area of the command section and calls the entry point
+in the command section code to perform the given action.
+
+Locators
+
+There are two 16-bit pointers stored in the last four bytes of the command
+section, these bytes tell the control section the absolute memory locations of
+the command section entry point and the registers, the pointers are located two
+and four bytes before the start of the control section, respectively. The
+following table shows the memory layout relative to the control section.
+
+Five bytes before the start of the command section is the program crash
+indicator, unlike the pointers, this is an 8-bit *byte* value. A value of one
+is stored in the program crash indicator by the starter code and is expected to
+be set to zero by the control section. If the control section ends while the
+program crash indicator is not zero (either an error in the control section
+cause the code to halt or it was ended properly but without setting the program
+crash indicator to zero) then the starter code will assume the control code has
+crashed and take appropriate action.
+
++-----------------------+-----------------------------------------------+
+| Address               | Description                                   |
++-----------------------+-----------------------------------------------+
+| PROGSTART             | Start of the control section                  |
+| PROGSTART - 2         | Command section entry pointer                 |
+| PROGSTART - 4         | Command section register pointer              |
+| PROGSTART - 5         | Program crash indicator                       |
++-----------------------+-----------------------------------------------+
+
+Registers
+
+Registers are located at the memory address pointed to by the command section
+register pointer (abbreviated to CSRP). 
+
+The first register is the command register, located at the address pointed to
+by the CSRP. The command register is a 16-bit word (two bytes) used to control
+the action that will be performed by the command section and changes the
+meaning of the other registers depending on the command set.
+
+All other registers are parameter registers. The parameter registers are a
+series of sequential 16-bit word storages immediately following the command
+register, that are used by both the control section and the command section to
+communicate inputs and outputs of commands. Parameter registers are named by
+their order in memory with increasing numbers for increasing memory locations
+starting from one.
+
++---------------+-------+-----------------------------------------------+
+| Address       | Name  | Description                                   |
++---------------+-------+-----------------------------------------------+
+| CSPR          | CMD   | Command register                              |
+| CSPR + 2      | P1    | First parameter register                      |
+| CSPR + 4      | P2    | Second parameter register                     |
+| CSPR + 6      | P3    | etc.                                          |
++---------------+-------+-----------------------------------------------+
+
+Commands
+
+See "doc/commands.txt"
+
