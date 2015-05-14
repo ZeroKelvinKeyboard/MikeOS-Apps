@@ -1,0 +1,29 @@
+Key     Alternate       Action                  In Nano?        Handler
+------------------------------------------------------------------------------
+^A      Home            Line Start              Official        gosol
+^B      Left            Backward                Official        goleft
+^C      -               Cursor Position         Official        curpos
+^D      Delete          Delete Character        Official        delete
+^E      End             Line End                Official        goeol
+^F      Right           Forward                 Official        goright
+^G      -               Get Help                Official        gethelp
+^H      Backspace       Backspace               Official        backspace
+^I      Tab             Goto Line               Official        goline
+^J      -               Copy                    Unofficial      copytext
+^K      -               Cut                     Official        cuttext
+^L      -               Refresh                 Official        redraw
+^M      Enter           New Line                Official        insline
+^N      Down            Next Line               Official        godown
+^O      -               Write                   Official        writeout
+^P      Up              Previous Line           Official        goup
+^Q      -               File End                Unofficial      goeof
+^R      -               Insert File             Differs         readfile        
+^S      -               File Start              Unofficial      gosof
+^T      -               BASIC parameters        Unofficial      basparm
+^U      -               UnCut                   Official        paste
+^V      Page Down       Next Screen             Official        nextpage
+^W      -               Search                  Official        search
+^X      Escape          Exit                    Official        exit_okay
+^Y      Page Up         Previous Screen         Official        pageup
+^Z      -               Run BASIC               Unofficial      runbasic
+

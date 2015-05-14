@@ -17,6 +17,31 @@ Description: Removes a number of bytes from the beginning of a data block and
 shifts the remaining data backward to fill the new space. Usually used to
 remove deleted text.
 
+Command: search
+Command Number: 2
+Inputs:		P1 = area start pointer
+		P2 = area length
+		P3 = search string pointer
+Outputs:	P1 = match indicator (0 = no match, 1 = match found)
+		P2 = pointer to start of matching text
+		P3 = number of newline character between start and match
+Description:
+This command searches the given area for a series of text characters. Matching
+text is not case sensitive and does not have to be a whole term. The match can
+start anywhere between and including the first and last character in the given
+area, and can be a location that would put some but not all of the match
+outside the given area. 
+
+If P1 = 0, there are no matches found in the area and the other return
+parameters are invalid and should be discarded. Otherwise, if P1 = 1, there are
+one or more matches found and the other parameters reflect information about
+the first match.
+
+The number of newline characters found between the start of the area and the 
+matching text is given so that the line number in the editor can be updated 
+correctly.
+
+
 Command: redraw
 Command Number: 3
 Inputs:         None
@@ -58,10 +83,18 @@ and allows the user to enter input, which is put into the input buffer as a
 null terminated string. The input prompt cannot be cancelled but may be a blank
 string (only a null terminator).
 
+Command: set_basic_parameters
+Command Number: 7
+Inputs:		P1 = pointer to parameter string
+Outputs:	(none)
+Description: Sets the parameters to be used to be passed to an executing BASIC
+program. The length of these parameters can be no longer than 127 characters.
+
 Command: render_text
 Command Number: 8
 Inputs:         P1 = Screen start pointer
                 P2 = End of file pointer
+		P3 = Line Offset
 Outputs:        None
 Description: Draws text from the given location to the text area with lines
 ending in UNIX-style newline characters until either the text reaches a line
@@ -111,6 +144,37 @@ Description: Presents the prompt string at the left of the caption bar and
 prompts the users to respond as yes, no or cancel by pressing the first letter
 of each option. The response is store in a register to be used later.
 
+Command: get_help
+Command Number: 14
+Inputs:		P1 = File Data Start
+		P2 = Free Memory Start
+Outputs:	None
+Description: Displays the help screen with information on keyboard shortcuts
+and memory statistics based on known and given information.
 
+Command: read_key
+Command Number: 17
+Inputs:		None
+Outputs:	P1 = keycode (see 'doc/keys.txt')
+Description: This command waits for a key to be pressed and translates the
+keycode recieved into a value usable by the control section of the editor. This
+function is used by the control section to bypass the BASIC interpreter's
+default keycode translation in order to allow for a key code set more useful to
+the editor. See 'doc/keys.txt' for information on key code translation.
 
+Command: query_line_length (planned)
+Command Number: ?
+Inputs:		P1 = current position
+		P2 = file start
+		P3 = file end
+
+Command: set_partial_line (planned)
+Command Number: 15
+Inputs:		P1 = offset of line
+		P2 = characters before line start
+Outputs:	None
+Description: Sets the visible area of a line too long for the screen.
+
+Command render_partial_line (planned)
+Command Number: 16
 

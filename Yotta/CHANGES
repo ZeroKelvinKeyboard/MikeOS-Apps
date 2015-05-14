@@ -1,3 +1,30 @@
+Version 1.00x10^25
+- Fixed a bug causing the last character to be lost when saving.
+- BASIC programs can now be run from the editor.
+- Parameters can be assigned to BASIC programs.
+- Moving the cursor pasts the end of the line moves the cursor to the next line.
+- Fixed crash when opening a file that is too large.
+- Added message to inform user when editing a new file.
+- Fixed incorrect amount of lines being displayed on load for some files.
+- Cursor position information resembles nano more closely
+- Text colour is now light grey instead of white.
+- Padding line above caption bar removed adding one more line of text.
+- Merged 'buffer' into system area in memory usage data.
+- System area in memory usage is no longer a fixed size.
+- Insert/Delete/Home/End/PageUp/PageDown keys now work.
+- Captions now disappear when entering a help screen.
+- Many shortcut keys have been added or changed.
+- Removed end of file indicator character.
+- A '$' symbol now appears at the end of lines too long for the screen.
+- Added Search command.
+- Added Goto line command.
+- Added lots of internal documentation,
+- Removed FAQs, mostly useless.
+- PageUp/PageDown now scroll by two lines less than the number visible.
+- Added a command to redraw the editor.
+- No longer asks to save under the existing name for a new file.
+
+
 Version 2.00x10^24
 - Source code released, now under GNU GPL v3 licence
 - Fixed a bug causing files to have an extra garbage character added.

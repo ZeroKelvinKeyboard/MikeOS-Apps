@@ -2,18 +2,127 @@ bits 16
 org 32768
 %include 'mikedev.inc'
 
+; Key code values with BIOS (using scan code set 1)
+%define UP_KEYCODE		0x48E0
+%define DOWN_KEYCODE		0x50E0
+%define LEFT_KEYCODE		0x4BE0
+%define RIGHT_KEYCODE		0x4DE0
+%define INSERT_KEYCODE		0x52E0
+%define DELETE_KEYCODE		0x53E0
+%define HOME_KEYCODE		0x47E0
+%define END_KEYCODE		0x4FE0
+%define PAGEUP_KEYCODE		0x49E0
+%define PAGEDOWN_KEYCODE	0x51E0
+
+; BASIC programs can still use this as whilst running.
+%define variables_tmp			65000
+%define filename_tmp			65052
+%define parameters_tmp			65065
+
+code_start:
 ; Launcher code --- Starts the control section (BASIC part)
-; Uses BASIC/Assembly hybrid because interpreted BASIC is easier but assembly
-; is efficient.
+; Uses BASIC/Assembly hybrid 
 run_main:
 	mov word ax, program_start
 	mov word bx, program_end
 	sub bx, ax
 	call os_run_basic
 	call os_show_cursor
-	cmp byte [program_crashed], 1
+
+	cmp byte [exit_code], 2
+	je run_basic
+
+	cmp byte [exit_code], 1
 	je crash
+
 	ret
+
+; BASIC runner --- Little bit tricky, loads the BASIC program immediately after
+; it, overwriting most of the editor and original code location to maximize
+; memory available, then reloads everything. Completely fine, just don't rename
+; the editor binary.
+
+run_basic:
+	mov si, [p1]
+	mov di, .filename
+	mov cx, 13
+	rep movsb
+
+	mov si, [p2]
+	mov di, .variables
+	mov cx, 26
+	rep movsw
+
+	call os_clear_screen
+
+	mov ax, .filename
+	mov cx, basic_load_area
+	call os_load_file
+	jc crash
+
+	mov ax, basic_load_area
+	mov si, .parameters
+	call os_run_basic
+
+	mov si, .finished_msg
+	call os_print_string
+	call os_wait_for_key
+
+	mov si, .filename
+	mov di, filename_tmp
+	mov cx, 13
+	rep movsb
+
+	mov si, .variables
+	mov di, variables_tmp
+	mov cx, 26
+	rep movsw
+
+	mov si, .parameters
+	mov di, parameters_tmp
+	mov cx, 128
+	rep movsw
+
+	mov si, .reload_msg
+	call os_print_string
+
+	mov ax, .editor_filename
+	mov cx, code_start
+	call os_load_file
+	jc crash
+
+	mov si, filename_tmp
+	mov di, .filename
+	mov cx, 13
+	rep movsb
+
+	mov si, variables_tmp
+	mov di, .variables
+	mov cx, 26
+	rep movsw
+
+	mov si, parameters_tmp
+	mov di, .parameters
+	mov cx, 128
+	rep movsw
+
+	mov word [cmd], .variables
+
+	mov byte [exit_code], 2
+	mov si, .filename
+	jmp run_main
+
+	ret
+	
+.filename				times 13 db 0
+.editor_filename			db 'YOTTA.BIN', 0
+.variables				times 26 dw 0
+.parameters				times 128 db 0
+.finished_msg 				db '>>> BASIC Program Finished, press any key to continue...', 13, 10, 0
+.reload_msg 				db 'Reloading the editor...', 0
+
+
+basic_load_area:
 
 ; Crash handler --- The program crash indicator should be zero if the program
 ; ended successfully, otherwise assume the control section (BASIC part) messed
@@ -25,7 +134,9 @@ crash:
 	call os_print_string
 	ret
 	
-	crash_msg			db "Yotta has crashed :(", 13, 10, 0
+	crash_msg			db "Yotta has crashed :(", 13, 10
+	db 'You can report this bug by putting a bug report on the MikeOS Forum or email:'
+	db 13, 10, 'zerokelvinkeyboard@gmail.com', 13, 10, 0
 
 ; A whole heap of commands that make up the command section. Can be called by
 ; the control section, see 'doc/registers.txt' for the information on the
@@ -40,9 +151,8 @@ phase_cmd:
 	cmp ax, 1
 	je remove_bytes_cmd
 
-	; Should be readded eventually
 	cmp ax, 2
-;	je search_cmd
+	je search_cmd
 	
 	cmp ax, 3
 	je draw_cmd
@@ -55,6 +165,9 @@ phase_cmd:
 	
 	cmp ax, 6
 	je input_caption
+
+	cmp ax, 7
+	je set_basic_parameters
 	
 	cmp ax, 8
 	je render_text
@@ -73,7 +186,13 @@ phase_cmd:
 
 	cmp ax, 13
 	je ask_caption
+
+	cmp ax, 14
+	je get_help
 	
+	cmp ax, 17
+	je read_key
+
 	ret
 
 insert_bytes_cmd:
@@ -109,7 +228,7 @@ draw_cmd:
 	mov dx, 0000h
 	call os_move_cursor
 
-	mov bl, 0F0h
+	mov bl, 070h
 	mov dh, 00h
 	mov dl, 00h
 	mov si, 50h
@@ -126,7 +245,7 @@ draw_cmd:
 	mov ah, 09h
 	mov al, 20h
 	mov bh, 00h
-	mov bl, 0Fh
+	mov bl, 07h
 	mov cx, 0F0h
 	int 10h
 	
@@ -138,7 +257,7 @@ draw_cmd:
 		mov ah, 09h
 		mov al, 20h
 		mov bh, 00h
-		mov bl, 0F0h
+		mov bl, 070h
 		mov cx, 2
 		int 10h
 		
@@ -152,18 +271,18 @@ draw_cmd:
 		
 	key_strings			db 	'^G Get Help  ', 0
 	        			db	'^O WriteOut  ', 0
-	        			db	'^S Strt File ', 0
+	        			db	'^R Read File ', 0
 	        			db	'^Y Prev Page ', 0
 	        			db	'^K Cut Text  ', 0
-	        			db	'^Z Cur Pos ', 13, 10, 0
+	        			db	'^C Cur Pos ', 13, 10, 0
 	        			db	'^X Exit      ', 0
-	        			db	'^R Read File ', 0
-	        			db	'^F End File  ', 0
+	        			db	'^Z Run BASIC ', 0
+	        			db	'^W Where Is  ', 0
 	        			db	'^V Next Page ', 0
-	        			db	'^U UnCut Txt ', 0
-	        			db	'^L Del Line  ', 0
+	        			db	'^U PasteText ', 0
+	        			db	'^J Copy Text ', 0
 	
-	name_and_version		db 	'yotta 2.00x10^24', 0
+	name_and_version		db 	'yotta 1.00x10^25', 0
 	
 set_filename:
 	; IN: p1 = filename (blank for none)
@@ -221,6 +340,8 @@ set_caption:
 	
 	mov ax, [p1]
 	call os_string_length
+	cmp ax, 0
+	je .done
 	add ax, 4
 	shr ax, 1
 
@@ -238,7 +359,7 @@ set_caption:
 	mov ah, 09h
 	mov al, 20h
 	mov bh, 0
-	mov bl, 240
+	mov bl, 112
 	int 10h
 
 	mov si, opening_bracket
@@ -258,6 +379,7 @@ set_caption:
 	mov si, closing_bracket
 	call os_print_string
 	
+.done:
 	ret
 	
 	opening_bracket			db '[ ', 0
@@ -273,7 +395,7 @@ input_caption:
 	mov ah, 09h
 	mov al, 20h
 	mov bh, 0
-	mov bl, 0F0h
+	mov bl, 070h
 	mov cx, 80
 	int 10h
 	
@@ -296,12 +418,19 @@ input_caption:
 	mov ah, 09h
 	mov al, 20h
 	mov bh, 0
-	mov bl, 15
+	mov bl, 7
 	mov cx, 80
 	int 10h
 	
 	ret
 	
+set_basic_parameters:
+	; IN: p1 = parameter string pointer
+	mov si, [p1]
+	mov di, run_basic.parameters
+	call os_string_copy
+	ret
+
 ask_caption:
 	; IN: p1 = prompt, p2 = answer (Y/N/C = 0/1/2)
 	mov dh, 22
@@ -311,7 +440,7 @@ ask_caption:
 	mov ah, 09h
 	mov al, 20h
 	mov bh, 0
-	mov bl, 0F0h
+	mov bl, 070h
 	mov cx, 80
 	int 10h
 	
@@ -374,7 +503,7 @@ ask_caption:
 	mov ah, 09h
 	mov al, 20h
 	mov bh, 0
-	mov bl, 15
+	mov bl, 7
 	mov cx, 80
 	int 10h
 	
@@ -395,11 +524,11 @@ render_text:
 	
 	mov ah, 9
 	mov bh, 0
-	mov bl, 15
+	mov bl, 7
 	mov cx, 1	
 
 	cmp word si, [p2]	
-	jge .end_of_text
+	jge .finish
 
 	.text_loop:
 		lodsb
@@ -416,14 +545,14 @@ render_text:
 		
 		inc dl
 	.check_limits:
-		cmp dh, 21
+		cmp dh, 22
 		jge .finish
 		
 		cmp word si, [p2]	
-		jge .end_of_text
+		jg .finish
 	
 		cmp dl, 80
-		jge .skip_remaining
+		jge .line_overflow
 		
 		jmp .text_loop
 		
@@ -442,6 +571,10 @@ render_text:
 		
 		jmp .check_limits
 		
+	.line_overflow:
+		mov al, '$'
+		int 10h
+
 	.skip_remaining:
 		lodsb
 		cmp al, 0Ah
@@ -453,11 +586,6 @@ render_text:
 		int 10h
 		jmp .newline
 		
-	.end_of_text:
-		call os_move_cursor
-		mov ah, 0Eh
-		mov al, 17
-		int 10h
 	.finish:
 		ret
 
@@ -480,8 +608,8 @@ set_modified:
 		call os_print_string
 		ret
 	
-	modified_word			db 'Modified', 0
-	blank_word			db '        ', 0
+	modified_word				db 'Modified', 0
+	blank_word				db '        ', 0
 	
 clear_text_area:
 	mov dh, 2
@@ -491,8 +619,8 @@ clear_text_area:
 	mov ah, 09h
 	mov al, 0h
 	mov bh, 00h
-	mov bl, 0Fh
-	mov cx, 1520
+	mov bl, 07h
+	mov cx, 1600
 	int 10h
 	ret
 	
@@ -504,11 +632,11 @@ shift_right_text:
 	mov dh, al
 	call os_move_cursor
 	
-	cmp cl, 79
+	cmp cl, 78
 	jge .finished
 	
 	mov bh, 0
-	mov dl, 78
+	mov dl, 77
 	call os_move_cursor
 	
 
@@ -555,19 +683,298 @@ shift_left_text:
         int 10h
         
         add dl, 2
-        cmp dl, 79
+        cmp dl, 78
         jg .finished
         
         call os_move_cursor
         jmp .move_loop
 
 .finished:
-	mov dl, 79
+	mov dl, 78
 	call os_move_cursor
 	mov ah, 0Eh
 	mov al, 0
 	int 10h
 	ret
+
+
+get_help:
+	call clear_text_area
+	mov dl, 0
+	mov dh, 2
+	call os_move_cursor
+
+	mov si, help_text_1
+	call os_print_string
+
+	mov si, help_text_system
+	mov ax, code_start
+	call print_buffer_size
+
+	mov si, help_text_program
+	mov ax, [p1]
+	sub ax, code_start
+	call print_buffer_size
+
+	mov si, help_text_file
+	mov ax, [p2]
+	sub ax, [p1]
+	call print_buffer_size
+
+	mov si, help_text_free
+	mov ax, 0
+	sub ax, [p2]
+	call print_buffer_size
+
+	call next_screen_delay
+
+	mov si, help_text_2
+	call os_print_string
+	call next_screen_delay
+
+	mov si, help_text_3
+	call os_print_string
+	call next_screen_delay
+
+	ret
+
+
+; SI = message, AX = size (bytes)
+print_buffer_size:
+	call os_print_string
+	mov bx, ax
+	call os_int_to_string
+	mov si, ax
+	call os_print_string
+	mov si, help_text_bytes
+	call os_print_string
+	cmp bx, 1
+	je .onebyte
+
+	mov ah, 0x0E
+	mov al, 's'
+	mov bh, 0
+	int 10h
+
+.onebyte:
+	call os_print_newline
+	ret
+
+next_screen_delay:
+	call os_print_newline
+	mov si, help_text_wait
+	call os_print_string
+	call os_wait_for_key
+	call clear_text_area
+	ret
+
+help_text_1:
+  db 'yotta: a nano clone for MikeOS', 13, 10
+  db 'Version 1.00x10^25', 13, 10
+  db 'Copyright (C) Joshua Beck 2015', 13, 10
+  db 'Licenced under the GNU GPL v3', 13, 10
+  db 'Email: zerokelvinkeyboard@gmail.com', 13, 10
+  db 13, 10
+  db 'Memory Usage', 13, 10
+  db '============', 13, 10
+  db 'Total: 65536 bytes', 13, 10, 0
+
+help_text_system				db 'System:  ', 0
+help_text_program				db 'Program: ', 0
+help_text_file					db 'File: ', 0
+help_text_free					db 'Free: ', 0
+help_text_bytes					db ' byte', 0
+help_text_wait					db 'Press any key to continue...', 0
+
+help_text_2:
+  db 'Key Combinations:', 13, 10
+  db 13, 10
+  db '^A    Start of Line', 13, 10
+  db '^B    Previous Character', 13, 10
+  db '^C    Cursor Position', 13, 10
+  db '^D    Delete Character', 13, 10
+  db '^E    End of Line', 13, 10
+  db '^F    Next Character', 13, 10
+  db '^G    Display this help', 13, 10
+  db '^H    Backspace', 13, 10
+  db '^I    Goto Line', 13, 10
+  db '^J    Copy Text', 13, 10
+  db '^K    Cut Text', 13, 10
+  db '^L    Redraw Screen', 13, 10
+  db '^M    New Line', 13, 10
+  db '^N    Next Line', 13, 10
+  db '^O    Write File', 13, 10
+  db '^P    Previous Line', 13, 10, 0
+
+help_text_3:
+  db '^Q    End of File', 13, 10
+  db '^R    Read File', 13, 10
+  db '^S    Start of File', 13, 10
+  db '^T    Set BASIC parameters', 13, 10
+  db '^U    Paste Text', 13, 10
+  db '^V    Next Page', 13, 10
+  db '^W    Search Text', 13, 10
+  db '^X    Exit', 13, 10
+  db '^Y    Previous Page', 13, 10
+  db '^Z    Run BASIC program', 13, 10, 0
+
+read_key:
+	call os_wait_for_key
+
+	cmp ax, UP_KEYCODE
+	je .up_key
+
+	cmp ax, DOWN_KEYCODE
+	je .down_key
+
+	cmp ax, LEFT_KEYCODE
+	je .left_key
+
+	cmp ax, RIGHT_KEYCODE
+	je .right_key
+
+	cmp ax, INSERT_KEYCODE
+	je .insert_key
+
+	cmp ax, DELETE_KEYCODE
+	je .delete_key
+
+	cmp ax, HOME_KEYCODE
+	je .home_key
+
+	cmp ax, END_KEYCODE
+	je .end_key
+
+	cmp ax, PAGEUP_KEYCODE
+	je .pageup_key
+
+	cmp ax, PAGEDOWN_KEYCODE
+	je .pagedown_key
+
+	and ax, 0x00FF
+.done:
+	mov [p1], ax
+	ret
+
+.up_key:
+	mov ax, 0x80
+	je .done
+
+.down_key:
+	mov ax, 0x81
+	je .done
+
+.left_key:
+	mov ax, 0x82
+	je .done
+
+.right_key:
+	mov ax, 0x83
+	je .done
+
+.insert_key:
+	mov ax, 0x84
+	je .done
+
+.delete_key:
+	mov ax, 0x7F
+	je .done
+
+.home_key:
+	mov ax, 0x85
+	je .done
+
+.end_key:
+	mov ax, 0x86
+	je .done
+
+.pageup_key:
+	mov ax, 0x87
+	je .done
+
+.pagedown_key:
+	mov ax, 0x88
+	je .done
+
+search_cmd:
+; IN: p1 = file start, p2 = file length, p3 = search term
+; OUT: p1 = 0/1 for no match/match, p2 = match pointer, p3 = lines skipped
+	mov di, [p1]
+	mov dx, [p2]
+	mov si, [p3]
+	mov word [.nl_count], 0
+
+	mov ax, si
+	call os_string_uppercase
+	call os_string_length
+	mov bx, ax
+	mov ah, [si]
+	
+.find_match:
+	cmp dx, 0
+	je .no_match
+	dec dx
+
+	mov al, [di]
+	inc di
+
+	cmp al, 10
+	je .newline
+
+	cmp al, ah
+	jne .find_match
+
+	push di
+
+	dec di
+	mov si, [p3]
+	mov cx, bx
+.check_match:
+	cmp cx, 0
+	je .found_match
+	dec cx
+
+	mov ah, [si]
+	mov al, [di]
+	inc si
+	inc di
+
+	cmp al, 'a'
+	jl .check_char
+
+	cmp al, 'z'
+	jg .check_char
+
+	sub al, 0x20
+
+.check_char:
+	cmp al, ah
+	je .check_match
+
+.bad_match:
+	pop di
+	jmp .find_match
+
+.newline:
+	inc word [.nl_count]
+	jmp .find_match
+
+.found_match:
+	pop di
+	dec di
+
+	mov word [p1], 1
+	mov [p2], di
+	mov ax, [.nl_count]
+	mov [p3], ax
+	ret
+
+.no_match:
+	mov word [p1], 0
+	ret
+
+.nl_count				dw 0
+
 
 ; Registers used by the control section to run sections of the command section.
 ; See doc/registers.txt for information about this data
@@ -579,7 +986,7 @@ registers:
 	p4				dw 0
 	p5				dw 0
 	p6				dw 0
-	program_crashed			db 1
+	exit_code			db 1
         data_pointer			dw cmd
        	phase_cmd_pointer		dw phase_cmd
 	
@@ -591,3 +998,4 @@ registers:
 program_start:
 incbin 'yotta.bas.txt'
 program_end:
+
