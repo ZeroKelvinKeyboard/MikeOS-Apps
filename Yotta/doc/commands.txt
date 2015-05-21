@@ -162,6 +162,27 @@ function is used by the control section to bypass the BASIC interpreter's
 default keycode translation in order to allow for a key code set more useful to
 the editor. See 'doc/keys.txt' for information on key code translation.
 
+Command: scroll_view_up 
+Command Number: 18
+Inputs:		P1 = Offset of first line on screen
+		P2 = Offset of the start of the file
+		P3 = Lines to scroll
+Outputs:	P1 = New
+Description: Scrolls the text on the screen up by one line and prints the line
+at the bottom of the screen based on the given offset for the first line on the
+screen.
+This function should be used instead of render_text when scrolling by less than
+a screenful of lines because scrolling should be faster than redrawing the 
+entire screen.
+
+Command: scroll_view_down 
+Command Number: 19
+Inputs:		P1 = Offset of first line on screen
+		P2 = Offset of end of file
+Outputs:	None
+Description: Same as above but scrolls down by one line rather than up.
+
+
 Command: query_line_length (planned)
 Command Number: ?
 Inputs:		P1 = current position

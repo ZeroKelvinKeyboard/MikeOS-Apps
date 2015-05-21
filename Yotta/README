@@ -7,8 +7,8 @@ See 'LICENCE' for details
 
 Yotta is a clone of the Linux commandline text editor, nano.
 
-I created this program, 'Yotta', as an alternative to the default MikeOS text
-editor. It is designed to be smooth and responsive and duplicate the all the
+Yotta was created to be an alternative to the default MikeOS text editor. It
+is designed to be smooth and responsive and duplicate the all the 
 functionality that is available in a modern text editor.
 Nano is a small number (10^-9), so I picked a much greater prefix, Yotta = 10^24.
 This is the highest standardized prefix in the metric system. A large number indeed.
@@ -37,12 +37,14 @@ https://github.com/zerokelvinkeyboard/tachyonos
 
 Files:
   README - This document
+  INSTALL - Instructions for building and running the editor
   LICENCE - Terms for using this program
   CHANGES - Changelog
   yotta.png - Screenshot showing file editing
   yotta.asm - Assembly Part
   yotta.bas.txt - BASIC part (not to be run directly)
-  yotta.bin - Precompiled binary for MikeOS
+  bin-mikeos/yotta.bin - Precompiled binary for MikeOS 4.5
+  bin-tachyon/yotta.bin - Precompiled binary for TachyonOS #009
   old/ - Older versions of binarys and source
   doc/ - Development information
   

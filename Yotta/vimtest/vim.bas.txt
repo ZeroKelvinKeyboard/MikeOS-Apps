@@ -22,65 +22,83 @@ main:
     i = 17
     gosub apicall
     k = j
-    gosub hidecursor
-    if k = 27 then k = 24
-    if k = 1 then gosub gosol
-    if k = 2 then gosub goleft
-    if k = 3 then gosub curpos
-    if k = 4 then gosub delete
-    if k = 5 then gosub goeol
-    if k = 6 then gosub goright
-    if k = 7 then gosub gethelp
-    if k = 8 then gosub backspace
-    if k = 9 then gosub goline
-    if k = 10 then gosub copytext
-    if k = 11 then gosub cuttext
-    if k = 12 then gosub redraw
-    if k = 13 then gosub insline
-    if k = 14 then gosub godown
-    if k = 15 then gosub writeout
-    if k = 16 then gosub goup
-    if k = 17 then gosub goeof
-    if k = 18 then gosub readfile
-    if k = 19 then gosub gosof
-    if k = 20 then gosub basparm
-    if k = 21 then gosub paste
-    if k = 22 then gosub nextpage
-    if k = 23 then gosub search
-    if k = 25 then gosub prevpage
-    if k = 26 then gosub runbasic
-    if k > 31 and k < 127 then gosub inschar
-    if k = 127 then gosub delete
-    if k = 128 then gosub goup
-    if k = 129 then gosub godown
-    if k = 130 then gosub goleft
-    if k = 131 then gosub goright
-    if k = 133 then gosub gosol
-    if k = 134 then gosub goeol
-    if k = 135 then gosub prevpage
-    if k = 136 then gosub nextpage
-    gosub showcursor
-  loop until k = 24
+    if $7 = "" then $7 = "N"
+    if $7 = "I" then gosub insmode
+    if $7 = "N" then gosub normode
+  loop endless
   $4 = ""
   goto exit_okay
+
+insmode:
+  if k > 31 and k < 127 then gosub inschar
+  if k = 8 then gosub backspace
+  if k = 13 then gosub insline
+  if k = 127 then gosub delete
+  if k = 27 then gosub exitmode
+return
+
+normode:
+  if k = 'j' then gosub godown
+  if k = 'k' then gosub goup
+  if k = 'h' then gosub goleft
+  if k = 'l' then gosub goright
+  if k = 'a' then gosub goleft
+  if k = 'a' then startins
+  if k = 'A' then gosub goeol
+  if k = 'A' then gosub startins
+  if k = 'i' then gosub startins
+  if k = "I" then gosub gosol
+  if k = "I" then gosub startins
+  if k = 's' then gosub delete
+  if k = 's' then gosub startins
+  if k = '$' then gosub goeol
+  if k = '0' then gosub gosol
+  if k = 6 then gosub nextpage
+  if k = 2 then gosub prevpage
+  if k = ':' then gosub cmdmode
+  if k = '/' then gosub search
+return
+
+startins:
+  $3 = "-- INSERT --"
+  gosub set_caption
+  $7 = "I"
+return
+
+exitmode:
+  $3 = ""
+  gosub set_caption
+  $7 = "N"
+return
+
+cmdmode:
+  $3 = ":"
+  gosub prompt
+  if $4 = "w" then gosub writeout
+  else if $4 = "q" then gosub exit_okay
+  else if $4 = "wq" then gosub writeout
+  else if $4 = "wq" then gosub exit_okay
+  else if $4 = "help" then gosub gethelp
+  else if $4 = "h" then gosub gethelp
+  else if $4 = "" then rem
+  else $3 = "Unknown command"
+  else gosub set_caption
+return
 
 exit_okay:
   gosub unsaved
   if w = 2 then goto main
   cls
-  if $4 = "" then rem
-  else print $4
   x = progstart
   x = x - 5
   poke 0 x
-  end
+end
 
 unsaved:
   if p = 0 then return
-  $3 = "Save modified buffer (ANSWERING 'No' WILL DESTROY CHANGES) ? "
-  gosub question
-  w = v
-  if w = 0 then gosub save_current
+  $3 = "No write since last change"
+  gosub set_caption
+  w = 2
 return
 
 loadfile:
@@ -96,7 +114,7 @@ loadfile:
   p = 0
 
   a = 0
-  b = 2
+  b = 0
   n = 1
 
   if $1 = "" then goto newfile
@@ -157,7 +175,8 @@ newfile:
 return
 
 goup:
-  if b = 2 then goto scrollup
+  if b = 0 then goto scrollup
+  gosub hidecursor
 
   i = 1
   j = o
@@ -169,26 +188,29 @@ goup:
   h = o + a
   b = b - 1
   n = n - 1
+  gosub showcursor
 return
 
 
 scrollup:
   if f = g then return
 
+  gosub hidecursor
+
   i = 1
   j = f
   gosub backnln
   f = j
 
-  i = 18
-  v = e
-  gosub apicall
+  gosub render_text
   b = b + 1
 goto goup
 
 godown:
   if n = m then return
-  if b = 21 then goto scrolldown
+  if b = 23 then goto scrolldown
+
+  gosub hidecursor
 
   b = b + 1
   h = o + l + 1
@@ -197,6 +219,7 @@ godown:
   gosub lineinfo
   if a > l then a = l
   h = h + a
+  gosub showcursor
 return
 
 scrolldown:
@@ -207,17 +230,16 @@ scrolldown:
   gosub fwdnln
   f = j
 
-  i = 19
-  v = e
-  gosub apicall
-  gosub lineinfo
+  gosub render_text
   b = b - 1
 goto godown
 
 goleft:
   if a = 0 then goto preveol
+  gosub hidecursor
   a = a - 1
   h = h - 1
+  gosub showcursor
 return
 
 preveol:
@@ -230,8 +252,10 @@ goright:
   if a = 79 then goto nextsol
   if a = l then goto nextsol
 
+  gosub hidecursor
   a = a + 1
   h = h + 1
+  gosub showcursor
 return
 
 nextsol:
@@ -242,16 +266,18 @@ return
 
 goeol:
   if a = l then return
+  gosub hidecursor
   x = l
   if x > 79 then x = 79
   a = x
   h = o + x
+  gosub showcursor
 return
 
 goeof:
   if m < 21 then return  
 
-  i = 20
+  i = 24
   j = e + 1
   gosub backnln
   h = j
@@ -262,13 +288,18 @@ goeof:
   n = m - 20
 
   a = 0
-  b = 2
+  b = 0
+  gosub showcursor
 return
 
 gosol:
   if a = 0 then return
+
+  gosub hidecursor
+
   h = h - a
   a = 0
+  gosub showcursor
 return
 
 gosof:
@@ -278,7 +309,8 @@ gosof:
 
   n = 1
   a = 0
-  b = 2
+  b = 0
+  gosub showcursor
 return
 
 
@@ -291,6 +323,7 @@ gethelp:
   gosub apicall
 
   gosub render_text
+  gosub showcursor
 return
 
 curpos:
@@ -379,13 +412,14 @@ delnl:
   e = e - 1
   m = m - 1
   gosub render_text
+  gosub showcursor
 return
 
 nextpage:
   x = m - n
   if x < 35 then goto goeof
 
-  i = 18
+  i = 22
   j = f
   gosub fwdnln
   f = j
@@ -393,14 +427,15 @@ nextpage:
   
   n = n + 18 - b + 2
   a = 0
-  b = 2
+  b = 0
   gosub render_text
+  gosub showcursor
 return
 
 prevpage:
-  if n < 18 then goto gosof
+  if n < 22 then goto gosof
 
-  i = 18
+  i = 22
   j = f
   gosub backnln
   f = j
@@ -408,8 +443,9 @@ prevpage:
 
   n = n - 18 - b + 2
   a = 0
-  b = 2
+  b = 0
   gosub render_text
+  gosub showcursor
 return
 
 remline:
@@ -424,6 +460,7 @@ remline:
 
   gosub render_text
   a = 0
+  gosub showcursor
 return
 
 cuttext:
@@ -476,6 +513,7 @@ paste:
   $3 = "Pasted line buffer to file"
   gosub set_caption
   gosub render_text
+  gosub showcursor
 return
 
 readfile:
@@ -494,10 +532,12 @@ readfile:
   x = 0
   gosub clear_modified
 
+  gosub hidecursor
   a = 0
-  b = 2
+  b = 0
   n = 1
   gosub loadfile
+  gosub showcursor
 return
 
 writeout:
@@ -556,7 +596,7 @@ basparm:
 return
 
 search:
-  $3 = "Search: "
+  $3 = "/"
   gosub prompt
   if $4 = "" and $6 = "" then goto cancelled
   else if $4 = "" then $4 = $6
@@ -572,15 +612,16 @@ search:
   n = n + y
 
   h = v
-  i = 9
+  i = 11
   j = v
   gosub backnln
   f = j
 
-  b = 11
-  if n < 11 then b = n
+  b = 13
+  if n < 13 then b = n
   gosub render_text
   a = h - o
+  gosub showcursor
 return
 
 goline:
@@ -599,8 +640,9 @@ goline:
   f = j
   h = j
   a = 0
-  b = 2
+  b = 0
   gosub render_text
+  gosub showcursor
 return
 
 notfound:
@@ -620,14 +662,9 @@ saveerror:
 return
 
 render_text:
-  i = 10
-  gosub apicall
-  j = d + 8
-  pokeint 22 j
   i = 8
   j = f
   v = e
-  y = 2
   gosub apicall
   gosub lineinfo
 return

@@ -193,12 +193,6 @@ phase_cmd:
 	cmp ax, 17
 	je read_key
 
-	cmp ax, 18
-	je scroll_view_up
-
-	cmp ax, 19
-	je scroll_view_down
-
 	ret
 
 insert_bytes_cmd:
@@ -231,109 +225,15 @@ remove_bytes_cmd:
 
 draw_cmd:
 	call os_clear_screen
-	mov dx, 0000h
-	call os_move_cursor
-
-	mov bl, 070h
-	mov dh, 00h
-	mov dl, 00h
-	mov si, 50h
-	mov di, 01h
-	call os_draw_block	
-		
-	mov si, name_and_version
-	call os_print_string
-
-	mov dh, 23
-	mov dl, 0
-	call os_move_cursor
-	
-	mov ah, 09h
-	mov al, 20h
-	mov bh, 00h
-	mov bl, 07h
-	mov cx, 0F0h
-	int 10h
-	
-	mov word si, key_strings
-	mov cx, 12
-	
-	.print_shortcuts:
-		push cx
-		mov ah, 09h
-		mov al, 20h
-		mov bh, 00h
-		mov bl, 070h
-		mov cx, 2
-		int 10h
-		
-		call os_print_string
-		add si, 14
-		
-		pop cx
-		loop .print_shortcuts
-		
-		ret
-		
-	key_strings			db 	'^G Get Help  ', 0
-	        			db	'^O WriteOut  ', 0
-	        			db	'^R Read File ', 0
-	        			db	'^Y Prev Page ', 0
-	        			db	'^K Cut Text  ', 0
-	        			db	'^C Cur Pos ', 13, 10, 0
-	        			db	'^X Exit      ', 0
-	        			db	'^Z Run BASIC ', 0
-	        			db	'^W Where Is  ', 0
-	        			db	'^V Next Page ', 0
-	        			db	'^U PasteText ', 0
-	        			db	'^J Copy Text ', 0
-	
-	name_and_version		db 	'yotta 1.01x10^25', 0
-	
-set_filename:
-	; IN: p1 = filename (blank for none)
-	mov si, [p1]
-	lodsb
-	cmp al, 0
-	je .blank
-	
-	mov ax, [p1]
-	call os_string_length
-	add ax, 6
-	shr ax, 1
-	
-	mov bx, 40
-	sub bx, ax
-	
-	mov dh, 0
-	mov dl, bl
-	call os_move_cursor
-	
-	mov si, file_word
-	call os_print_string
-	
-	add dl, 6
-	call os_move_cursor
-	mov si, [p1]
-	call os_print_string
 	
 	ret
 	
-	.blank:
-		mov dh, 0
-		mov dl, 35
-		call os_move_cursor
-		
-		mov si, no_file_word
-		call os_print_string
-		ret
-		
-	no_file_word			db	'New Buffer', 0
-	file_word			db	'File: ', 0		
-
+set_filename:
+	ret
+	
 set_caption:
 	; IN: p1 = caption
-	mov dh, 22
+	mov dh, 24
 	mov dl, 0
 	call os_move_cursor
 
@@ -348,60 +248,39 @@ set_caption:
 	call os_string_length
 	cmp ax, 0
 	je .done
-	add ax, 4
-	shr ax, 1
 
-	mov bx, 40
-	sub bx, ax
-	
-	mov dh, 22
-	mov dl, bl
+	mov dh, 24
+	mov dl, 0
 	call os_move_cursor
 	
 	mov ax, [p1]
 	call os_string_length
-	add ax, 4
 	mov cx, ax
 	mov ah, 09h
 	mov al, 20h
 	mov bh, 0
-	mov bl, 112
+	mov bl, 7
 	int 10h
 
-	mov si, opening_bracket
-	call os_print_string
-	
-	add dl, 2
 	call os_move_cursor
 	
 	mov si, [p1]
 	call os_print_string
 	
-	mov ax, [p1]
-	call os_string_length
-	add dl, al
-	call os_move_cursor
-	
-	mov si, closing_bracket
-	call os_print_string
-	
 .done:
 	ret
 	
-	opening_bracket			db '[ ', 0
-	closing_bracket			db ' ]', 0
-
 
 input_caption:
 	; IN: p1 = prompt, p2 = input buffer
-	mov dh, 22
+	mov dh, 24
 	mov dl, 0
 	call os_move_cursor
 	
 	mov ah, 09h
 	mov al, 20h
 	mov bh, 0
-	mov bl, 070h
+	mov bl, 07h
 	mov cx, 80
 	int 10h
 	
@@ -418,16 +297,6 @@ input_caption:
 	call os_input_string
 	call os_hide_cursor
 	
-	mov dl, 0
-	call os_move_cursor
-	
-	mov ah, 09h
-	mov al, 20h
-	mov bh, 0
-	mov bl, 7
-	mov cx, 80
-	int 10h
-	
 	ret
 	
 set_basic_parameters:
@@ -439,14 +308,14 @@ set_basic_parameters:
 
 ask_caption:
 	; IN: p1 = prompt, p2 = answer (Y/N/C = 0/1/2)
-	mov dh, 22
+	mov dh, 24
 	mov dl, 0
 	call os_move_cursor
 	
 	mov ah, 09h
 	mov al, 20h
 	mov bh, 0
-	mov bl, 070h
+	mov bl, 07h
 	mov cx, 80
 	int 10h
 	
@@ -518,13 +387,13 @@ ask_caption:
 	.ask_prompt				db '(Y)es/(N)o/(C)ancel', 0
 
 render_text:
-	; IN: p1 = first char on screen, p2 = end of text, p3 = first line,
-	;     p4 = last line
+	; IN: p1 = first char on screen, p2 = end of text
+	call clear_text_area
 	cmp word [p1], 0
 	je .finish
 	
 	mov word si, [p1]
-	mov dh, [p3]
+	mov dh, 0
 	mov dl, 0
 	call os_move_cursor
 	
@@ -541,7 +410,7 @@ render_text:
 		
 		call os_move_cursor
 		
-;		cmp al, 09h
+		cmp al, 09h
 ;		je .tab
 		
 		cmp al, 0Ah
@@ -551,7 +420,7 @@ render_text:
 		
 		inc dl
 	.check_limits:
-		cmp dh, [p4]
+		cmp dh, 24
 		jge .finish
 		
 		cmp word si, [p2]	
@@ -561,6 +430,15 @@ render_text:
 		jge .line_overflow
 		
 		jmp .text_loop
+		
+	.tab:
+		mov al, 20h
+		mov cx, 4
+		int 10h
+		mov cx, 1
+		
+		add dl, 3
+		jmp .check_limits
 		
 	.newline:
 		inc dh
@@ -588,28 +466,10 @@ render_text:
 
 set_modified:
 	; IN: p1 = modified on/off
-	mov dh, 0
-	mov dl, 72
-	call os_move_cursor
-	
-	cmp word [p1], 0
-	je .remove_modified
-
-	.set_modified:
-		mov si, modified_word
-		call os_print_string
-		ret
-	
-	.remove_modified:
-		mov si, blank_word
-		call os_print_string
-		ret
-	
-	modified_word				db 'Modified', 0
-	blank_word				db '        ', 0
+	ret
 	
 clear_text_area:
-	mov dh, 2
+	mov dh, 0
 	mov dl, 0
 	call os_move_cursor
 	
@@ -617,7 +477,7 @@ clear_text_area:
 	mov al, 0h
 	mov bh, 00h
 	mov bl, 07h
-	mov cx, 1600
+	mov cx, 1920
 	int 10h
 	ret
 	
@@ -725,14 +585,6 @@ get_help:
 
 	call next_screen_delay
 
-	mov si, help_text_2
-	call os_print_string
-	call next_screen_delay
-
-	mov si, help_text_3
-	call os_print_string
-	call next_screen_delay
-
 	ret
 
 
@@ -766,8 +618,8 @@ next_screen_delay:
 	ret
 
 help_text_1:
-  db 'yotta: a nano clone for MikeOS', 13, 10
-  db 'Version 1.01x10^25', 13, 10
+  db 'Experimental vim clone for MikeOS', 13, 10
+  db 'Version 1.0.0', 13, 10
   db 'Copyright (C) Joshua Beck 2015', 13, 10
   db 'Licenced under the GNU GPL v3', 13, 10
   db 'Email: zerokelvinkeyboard@gmail.com', 13, 10
@@ -783,43 +635,9 @@ help_text_free					db 'Free: ', 0
 help_text_bytes					db ' byte', 0
 help_text_wait					db 'Press any key to continue...', 0
 
-help_text_2:
-  db 'Key Combinations:', 13, 10
-  db 13, 10
-  db '^A    Start of Line', 13, 10
-  db '^B    Previous Character', 13, 10
-  db '^C    Cursor Position', 13, 10
-  db '^D    Delete Character', 13, 10
-  db '^E    End of Line', 13, 10
-  db '^F    Next Character', 13, 10
-  db '^G    Display this help', 13, 10
-  db '^H    Backspace', 13, 10
-  db '^I    Goto Line', 13, 10
-  db '^J    Copy Text', 13, 10
-  db '^K    Cut Text', 13, 10
-  db '^L    Redraw Screen', 13, 10
-  db '^M    New Line', 13, 10
-  db '^N    Next Line', 13, 10
-  db '^O    Write File', 13, 10
-  db '^P    Previous Line', 13, 10, 0
-
-help_text_3:
-  db '^Q    End of File', 13, 10
-  db '^R    Read File', 13, 10
-  db '^S    Start of File', 13, 10
-  db '^T    Set BASIC parameters', 13, 10
-  db '^U    Paste Text', 13, 10
-  db '^V    Next Page', 13, 10
-  db '^W    Search Text', 13, 10
-  db '^X    Exit', 13, 10
-  db '^Y    Previous Page', 13, 10
-  db '^Z    Run BASIC program', 13, 10, 0
 
 read_key:
 	call os_wait_for_key
-	mov bx, ax
-	call flush_key_buffer
-	mov ax, bx
 
 	cmp ax, UP_KEYCODE
 	je .up_key
@@ -895,20 +713,6 @@ read_key:
 .pagedown_key:
 	mov ax, 0x88
 	je .done
-
-flush_key_buffer:
-	mov ah, 0x11
-	int 0x16
-	jz .done
-
-	mov ax, 0x10
-	int 0x16
-
-	jmp flush_key_buffer
-
-.done:
-	ret
-
 
 search_cmd:
 ; IN: p1 = file start, p2 = file length, p3 = search term
@@ -990,60 +794,6 @@ search_cmd:
 .nl_count				dw 0
 
 
-scroll_view_up:
-; P1 = new screen start, P2 = end of text
-	mov ah, 0x07
-	mov al, 1
-	mov bh, 7
-	mov ch, 2
-	mov cl, 0
-	mov dh, 21
-	mov dl, 79
-	int 0x10
-
-	mov word [p3], 2
-	mov word [p4], 3
-	call render_text
-	ret
-
-
-scroll_view_down:
-; P1 = new screen start, P2 = end of text
-	mov ah, 0x06
-	mov al, 1
-	mov bh, 7
-	mov ch, 2
-	mov cl, 0
-	mov dh, 21
-	mov dl, 79
-	int 0x10
-
-	mov si, [p1]
-	mov bx, [p2]
-	mov cx, 19
-.find_nl:
-	cmp si, bx
-	jge .cancel
-
-	lodsb
-	cmp al, 10
-	jne .find_nl
-
-.found_nl:
-	dec cx
-	cmp cx, 0
-	jne .find_nl
-
-	mov [p1], si
-
-	mov word [p3], 21
-	mov word [p4], 22
-	call render_text
-.cancel:
-	ret
-	
-
-
 ; Registers used by the control section to run sections of the command section.
 ; See doc/registers.txt for information about this data
 registers:
@@ -1064,6 +814,6 @@ registers:
 ; Has to have '.txt' on the end or the build script will think it is a
 ; stand alone program and add it to disk.
 program_start:
-incbin 'yotta.bas.txt'
+incbin 'vim.bas.txt'
 program_end:
 

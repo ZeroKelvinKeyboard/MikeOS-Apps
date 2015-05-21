@@ -1,3 +1,8 @@
+Version 1.01x10^25
+- Moved MikeOS and TachyonOS binaries to separate directories.
+- Scrolling single lines is now much smoother.
+- Keyboard lag reduced.
+
 Version 1.00x10^25
 - Fixed a bug causing the last character to be lost when saving.
 - BASIC programs can now be run from the editor.

@@ -14,18 +14,18 @@ K	Keyboard key press value
 L	Length of the current line
 M	Total lines in the file
 N	Current line number (starting from one)
-O	Offset of the current line
+O	Offset of the current line (planned)
 P	File modified indicator (0 = unmodified, 1 = modified)
 Q	First column on the screen (viewport)
 R	Reserved for file operations
 S	Reserved for file operations
-T	Debug count
+T	Debug count 
 U	Working variable (for showcursor/hidecursor only)
 V	Possible Working Variable
 W	Possible Working Variable
 X	Possible Working Variable
 Y	Possible Working Variable
-Z	Targer Column
+Z	Target Column (planned)
 
 
 
@@ -34,5 +34,6 @@ $2	Current Filename
 $3	Parameter String
 $4	Buffer String
 $5	Line Buffer
+$6	Last search term
 
 
