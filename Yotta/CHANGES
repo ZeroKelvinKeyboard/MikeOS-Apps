@@ -1,3 +1,11 @@
+Version 1.02x10^25
+- Improved scrolling system, reducing redraw.
+- Reordered subroutines in BASIC code for performance reasons.
+- Fixed a bug allowing cursor to go past the end of the file.
+- Fixed line number being incorrect at the end of file.
+- Fixed incorrect number of lines being reported.
+- Fixed cursor alignment issues at the end of file.
+
 Version 1.01x10^25
 - Moved MikeOS and TachyonOS binaries to separate directories.
 - Scrolling single lines is now much smoother.

@@ -66,5 +66,8 @@ starting from one.
 
 Commands
 
-See "doc/commands.txt"
+Commands can be run by settings the appropriate command value and registers,
+then calling the the command section entry pointer.
+
+See "doc/commands.txt" for information of available commands.
 

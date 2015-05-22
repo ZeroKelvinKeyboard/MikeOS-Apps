@@ -1,3 +1,156 @@
+rem Yotta Text Editor
+goto start
+
+apicall:
+  pokeint i d
+  x = d + 2
+  pokeint j x
+  x = d + 4
+  pokeint v x
+  x = d + 6
+  pokeint y x
+  call c
+  peekint y x
+  x = d + 4
+  peekint v x
+  x = d + 2
+  peekint j x
+return
+
+render_text:
+  i = 10
+  gosub apicall
+  i = 8
+  j = f
+  v = 2
+  y = 20
+  gosub apicall
+  gosub lineinfo
+return
+
+showcursor:
+  move a b
+  ink 112
+  curschar u
+  print chr u ;
+  ink 7
+return
+
+hidecursor:
+  move a b
+  ink 7
+  curschar u
+  print chr u ;
+return
+
+lineinfo:
+  o = h
+  do
+    o = o - 1
+    peek v o
+    if o < g then v = 10
+  loop until v = 10
+  o = o + 1
+
+  l = 0
+  x = o
+
+  if x = e then return
+  peek v x
+  if v = 10 then return
+
+  do
+    x = x + 1
+    l = l + 1
+    peek v x
+    if x = e then v = 10
+  loop until v = 10
+return
+
+scroll:
+  if i = 0 then i = 18
+  if i = 1 then i = 19
+  j = f
+  gosub apicall
+  f = j
+  h = j
+return
+
+backnln:
+  i = i + 1
+  do
+    j = j - 1
+    peek u j
+    if u = 10 then i = i - 1
+    if j < g then i = 0
+  loop until i = 0
+  j = j + 1
+return
+
+fwdnln:
+  if i = 0 then return
+  do
+    peek u j
+    j = j + 1
+    if u = 10 then i = i - 1
+    if j > e then i = 0
+  loop until i = 0
+  if j > e then j = e
+return
+
+redraw:
+  i = 3
+  gosub apicall
+  i = 4
+  j = & $2
+  gosub apicall
+  i = 9
+  j = p
+  gosub apicall
+  gosub render_text
+  gosub showcursor
+return
+
+set_caption:
+  i = 5
+  j = & $3
+  gosub apicall
+return
+
+set_modified:
+  p = 1
+  i = 9
+  j = 1
+  gosub apicall
+return
+
+clear_modified:
+  p = 0
+  i = 9
+  j = 0
+  gosub apicall
+return
+
+question:
+  i = 13
+  j = & $3
+  gosub apicall
+return
+
+prompt:
+  i = 6
+  j = & $3
+  v = & $4
+  gosub apicall
+return
+
+set_range:
+  i = 20
+  j = f
+  v = e
+  gosub apicall
+return
+
 start:
   t = 1
   cls
@@ -114,13 +267,14 @@ loadfile:
   i = 4
   j = & $2
   z = ramstart
-  w = 1
+  w = 0
   for x = z to e
     peek v x
     if v = 10 then w = w + 1
   next x
   m = w
 
+  gosub set_range
   gosub redraw
 
   if m = 1 then $3 = "Read 1 line"
@@ -151,6 +305,7 @@ newfile:
   m = 1
   n = 1
 
+  gosub set_range
   gosub redraw
   $3 = "New File"
   gosub set_caption
@@ -175,16 +330,15 @@ return
 scrollup:
   if f = g then return
 
-  i = 1
-  j = f
-  gosub backnln
-  f = j
-
-  i = 18
-  v = e
-  gosub apicall
-  b = b + 1
-goto goup
+  i = 0
+  v = 1
+  gosub scroll
+  
+  gosub lineinfo
+  if a > l then a = l
+  h = o + a
+  n = n - 1
+return
 
 godown:
   if n = m then return
@@ -200,19 +354,16 @@ godown:
 return
 
 scrolldown:
-  x = n + 1
-
   i = 1
-  j = f
-  gosub fwdnln
-  f = j
+  v = 1
+  gosub scroll
+  h = y
 
-  i = 19
-  v = e
-  gosub apicall
+  n = n + v
   gosub lineinfo
-  b = b - 1
-goto godown
+  if a > l then a = l
+  h = o + a
+return
 
 goleft:
   if a = 0 then goto preveol
@@ -229,7 +380,6 @@ return
 goright:
   if a = 79 then goto nextsol
   if a = l then goto nextsol
-
   a = a + 1
   h = h + 1
 return
@@ -259,8 +409,7 @@ goeof:
 
   gosub render_text
 
-  n = m - 20
-
+  n = m - 19
   a = 0
   b = 2
 return
@@ -280,7 +429,6 @@ gosof:
   a = 0
   b = 2
 return
-
 
 gethelp:
   $3 = ""
@@ -385,26 +533,21 @@ nextpage:
   x = m - n
   if x < 35 then goto goeof
 
-  i = 18
-  j = f
-  gosub fwdnln
-  f = j
-  h = j
-  
+  i = 1
+  v = 18
+  gosub scroll
+
   n = n + 18 - b + 2
   a = 0
   b = 2
-  gosub render_text
 return
 
 prevpage:
   if n < 18 then goto gosof
 
-  i = 18
-  j = f
-  gosub backnln
-  f = j
-  h = j
+  i = 0
+  v = 18
+  gosub scroll
 
   n = n - 18 - b + 2
   a = 0
@@ -472,6 +615,8 @@ paste:
     poke v x
     x = x + 1
   next w
+
+  gosub set_range
 
   $3 = "Pasted line buffer to file"
   gosub set_caption
@@ -619,83 +764,6 @@ saveerror:
   $2 = ""
 return
 
-render_text:
-  i = 10
-  gosub apicall
-  j = d + 8
-  pokeint 22 j
-  i = 8
-  j = f
-  v = e
-  y = 2
-  gosub apicall
-  gosub lineinfo
-return
-
-showcursor:
-  move a b
-  ink 112
-  curschar u
-  print chr u ;
-  ink 7
-return
-
-hidecursor:
-  move a b
-  ink 7
-  curschar u
-  print chr u ;
-return
-
-set_caption:
-  i = 5
-  j = & $3
-  gosub apicall
-return
-
-set_modified:
-  p = 1
-  i = 9
-  j = 1
-  gosub apicall
-return
-
-clear_modified:
-  p = 0
-  i = 9
-  j = 0
-  gosub apicall
-return
-
-question:
-  i = 13
-  j = & $3
-  gosub apicall
-return
-
-prompt:
-  i = 6
-  j = & $3
-  v = & $4
-  gosub apicall
-return
-
-apicall:
-  pokeint i d
-  x = d + 2
-  pokeint j x
-  x = d + 4
-  pokeint v x
-  x = d + 6
-  pokeint y x
-  call c
-  peekint y x
-  x = d + 4
-  peekint v x
-  x = d + 2
-  peekint j x
-return
-
 restore:
   peekint x d
   z = variables
@@ -717,6 +785,8 @@ restore:
   $3 = "Loading..."
   gosub set_caption
 
+  gosub set_range
+
   x = ramstart
   load $1 x
   if r > 0 then end
@@ -724,65 +794,6 @@ restore:
   gosub redraw
 goto main
     
-lineinfo:
-  o = h
-  do
-    o = o - 1
-    peek v o
-    if o < g then v = 10
-  loop until v = 10
-  o = o + 1
-
-  l = 0
-  x = o
-
-  if x = e then return
-  peek v x
-  if v = 10 then return
-
-  do
-    x = x + 1
-    l = l + 1
-    peek v x
-    if x = e then v = 10
-  loop until v = 10
-return
-
-backnln:
-  i = i + 1
-  do
-    j = j - 1
-    peek u j
-    if u = 10 then i = i - 1
-    if j < g then i = 0
-  loop until i = 0
-  j = j + 1
-return
-
-fwdnln:
-  if i = 0 then return
-  do
-    peek u j
-    j = j + 1
-    if u = 10 then i = i - 1
-    if j > e then i = 0
-  loop until i = 0
-  if j > e then j = e
-return
-
-redraw:
-  i = 3
-  gosub apicall
-  i = 4
-  j = & $2
-  gosub apicall
-  i = 9
-  j = p
-  gosub apicall
-  gosub render_text
-  gosub showcursor
-return
-
 debug:
   move 0 0
   $6 = "DEBUG" + t

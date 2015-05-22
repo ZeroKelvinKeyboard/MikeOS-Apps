@@ -194,11 +194,14 @@ phase_cmd:
 	je read_key
 
 	cmp ax, 18
-	je scroll_view_up
+	je scroll_up
 
 	cmp ax, 19
-	je scroll_view_down
+	je scroll_down
 
+	cmp ax, 20
+	je set_text_limits
+	
 	ret
 
 insert_bytes_cmd:
@@ -210,11 +213,13 @@ insert_bytes_cmd:
 	dec si
 	mov di, si
 	add di, [p3]
-	std
-	
-	rep movsb	
 
+	std
+	rep movsb	
 	cld		
+
+	mov ax, [p3]
+	add [text_end], ax
 	ret
 	
 remove_bytes_cmd:
@@ -225,6 +230,9 @@ remove_bytes_cmd:
 	add si, [p3]
 
 	rep movsb
+
+	mov ax, [p3]
+	sub [text_end], ax
 
 	ret
 
@@ -288,7 +296,7 @@ draw_cmd:
 	        			db	'^U PasteText ', 0
 	        			db	'^J Copy Text ', 0
 	
-	name_and_version		db 	'yotta 1.01x10^25', 0
+	name_and_version		db 	'yotta 1.02x10^25', 0
 	
 set_filename:
 	; IN: p1 = filename (blank for none)
@@ -518,23 +526,27 @@ ask_caption:
 	.ask_prompt				db '(Y)es/(N)o/(C)ancel', 0
 
 render_text:
-	; IN: p1 = first char on screen, p2 = end of text, p3 = first line,
-	;     p4 = last line
+	; IN: p1 = line offset, p2 = start line, p3 = total lines
+
 	cmp word [p1], 0
 	je .finish
 	
 	mov word si, [p1]
-	mov dh, [p3]
+	mov dh, [p2]
 	mov dl, 0
-	call os_move_cursor
 	
 	mov ah, 9
 	mov bh, 0
 	mov bl, 7
 	mov cx, 1	
 
-	cmp word si, [p2]	
+	cmp si, [text_start]
+	jl .finish
+
+	cmp si, [text_end]	
 	jge .finish
+
+	add [p3], dh
 
 	.text_loop:
 		lodsb
@@ -551,10 +563,10 @@ render_text:
 		
 		inc dl
 	.check_limits:
-		cmp dh, [p4]
+		cmp dh, [p3]
 		jge .finish
 		
-		cmp word si, [p2]	
+		cmp word si, [text_end]	
 		jg .finish
 	
 		cmp dl, 80
@@ -767,7 +779,7 @@ next_screen_delay:
 
 help_text_1:
   db 'yotta: a nano clone for MikeOS', 13, 10
-  db 'Version 1.01x10^25', 13, 10
+  db 'Version 1.02x10^25', 13, 10
   db 'Copyright (C) Joshua Beck 2015', 13, 10
   db 'Licenced under the GNU GPL v3', 13, 10
   db 'Email: zerokelvinkeyboard@gmail.com', 13, 10
@@ -990,10 +1002,40 @@ search_cmd:
 .nl_count				dw 0
 
 
-scroll_view_up:
-; P1 = new screen start, P2 = end of text
+scroll_up:
+; P1 = first line offset, P2 = lines to scroll
+; P1 = new offset, P2 = actual lines scrolled
+	mov si, [p1]
+	mov cx, [p2]
+	inc cx
+	
+.find_nl:
+	cmp si, [text_start]
+	jle .stopped
+
+	dec si
+	mov al, [si]
+
+	cmp al, 10
+	jne .find_nl
+
+.found_nl:
+	dec cx
+	cmp cx, 0
+	jne .find_nl
+
+	inc si
+	mov ax, [p2]
+	mov [.lines_scrolled], ax
+
+.scroll:
+	mov [.new_offset], si
+
+	cmp word [.lines_scrolled], 20
+	jge .redraw
+
 	mov ah, 0x07
-	mov al, 1
+	mov al, [.lines_scrolled]
 	mov bh, 7
 	mov ch, 2
 	mov cl, 0
@@ -1001,16 +1043,51 @@ scroll_view_up:
 	mov dl, 79
 	int 0x10
 
-	mov word [p3], 2
-	mov word [p4], 3
+.render:
+	mov [p1], si
+	mov ax, [p2]
+	mov word [p2], 2
+	mov word [p3], ax
 	call render_text
+
+	mov ax, [.new_offset]
+	mov [p1], ax
+	mov ax, [.lines_scrolled]
+	mov [p2], ax
 	ret
 
+.stopped:
+	dec cx
+	mov ax, [p2]
+	sub ax, cx
+	mov [.lines_scrolled], ax
+	jmp .scroll
 
-scroll_view_down:
-; P1 = new screen start, P2 = end of text
+.redraw:
+	mov word [p2], 20
+	jmp .render
+
+.lines_scrolled						dw 0
+.new_offset						dw 0
+
+
+scroll_down:
+; IN: P1 = screen start, P2 = lines to scroll
+; OUT: P1 = new screen start, P2 = lines scrolled, P3 = first new line
+	mov si, [p1]
+	mov cx, [p2]
+	call find_forward_line
+	mov [.lines_scrolled], cx
+	mov [.new_position], si
+
+	cmp cx, 20
+	jge .redraw
+
+	mov di, 22
+	sub di, [.lines_scrolled]
+
 	mov ah, 0x06
-	mov al, 1
+	mov al, [.lines_scrolled]
 	mov bh, 7
 	mov ch, 2
 	mov cl, 0
@@ -1018,9 +1095,53 @@ scroll_view_down:
 	mov dl, 79
 	int 0x10
 
-	mov si, [p1]
-	mov bx, [p2]
-	mov cx, 19
+	mov si, [.new_position]
+	mov cx, di
+	sub cx, 2
+	call find_forward_line
+	mov [.first_new_line], si
+	
+	mov [p1], si
+	mov [p2], di
+	mov ax, [.lines_scrolled]
+	mov [p3], ax
+
+.render:
+	call render_text
+	mov ax, [.new_position]
+	mov [p1], ax
+	mov ax, [.lines_scrolled]
+	mov [p2], ax
+	mov ax, [.first_new_line]
+	mov [p3], ax
+	ret
+
+.cancel:
+	mov word [p2], 0
+	mov ax, [p1]
+	mov [p3], ax
+	ret
+
+.redraw:
+	mov word [p2], 2
+	mov word [p3], 20
+	jmp .render
+
+.lines_scrolled						dw 0
+.new_position						dw 0
+.first_new_line						dw 0
+
+
+; IN: SI = start, CX = lines to skip
+; OUT: SI = new position, CX = lines skipped
+find_forward_line:
+	push ax
+	push bx
+	push dx
+
+	mov dx, cx
+	mov bx, [text_end]
+
 .find_nl:
 	cmp si, bx
 	jge .cancel
@@ -1034,15 +1155,26 @@ scroll_view_down:
 	cmp cx, 0
 	jne .find_nl
 
-	mov [p1], si
-
-	mov word [p3], 21
-	mov word [p4], 22
-	call render_text
 .cancel:
-	ret
-	
+	sub dx, cx
+	xchg dx, cx
 
+	pop dx
+	pop bx
+	pop ax
+	ret
+
+
+; IN: P1 = text start, P2 = text end
+set_text_limits:
+	mov ax, [p1]
+	mov [text_start], ax
+	mov ax, [p2]
+	mov [text_end], ax
+	ret
+
+text_start				dw 0
+text_end				dw 0
 
 ; Registers used by the control section to run sections of the command section.
 ; See doc/registers.txt for information about this data

@@ -6,6 +6,7 @@ Inputs:         P1 = starting location
 Outputs:        None 
 Description: Moves a block of data after the starting location forward by a
 number of bytes. Usually used to make space for text inserts.
+The internal variable for the end of the text block is increased.
 
 Command: remove_bytes
 Command Number: 1
@@ -15,7 +16,9 @@ Inputs:         P1 = starting location
 Outputs:        None
 Description: Removes a number of bytes from the beginning of a data block and
 shifts the remaining data backward to fill the new space. Usually used to
-remove deleted text.
+remove deleted text.  
+The internal variable for the end of the text block is decreased by the number
+of bytes deleted.
 
 Command: search
 Command Number: 2
@@ -92,9 +95,9 @@ program. The length of these parameters can be no longer than 127 characters.
 
 Command: render_text
 Command Number: 8
-Inputs:         P1 = Screen start pointer
-                P2 = End of file pointer
-		P3 = Line Offset
+Inputs:         P1 = Offset of first text character
+                P2 = First line to draw on
+		P3 = Number of lines to draw
 Outputs:        None
 Description: Draws text from the given location to the text area with lines
 ending in UNIX-style newline characters until either the text reaches a line
@@ -162,40 +165,32 @@ function is used by the control section to bypass the BASIC interpreter's
 default keycode translation in order to allow for a key code set more useful to
 the editor. See 'doc/keys.txt' for information on key code translation.
 
-Command: scroll_view_up 
+Command: scroll_up 
 Command Number: 18
 Inputs:		P1 = Offset of first line on screen
-		P2 = Offset of the start of the file
-		P3 = Lines to scroll
-Outputs:	P1 = New
-Description: Scrolls the text on the screen up by one line and prints the line
-at the bottom of the screen based on the given offset for the first line on the
-screen.
-This function should be used instead of render_text when scrolling by less than
-a screenful of lines because scrolling should be faster than redrawing the 
-entire screen.
+		P2 = Lines to scroll
+Outputs:	P1 = Offset of first newly drawn line.
+		P2 = Number of lines actually scrolled.
 
-Command: scroll_view_down 
+Description: Scrolls the screen upwards by a number of lines. Lines that are
+still needed are simply moved upward and new lines needed are added to the
+screen. If the end of the text area is encounted as given by an internal
+variable, any further scrolling will be cancelled. The number of lines that
+were scrolled replaces the number of lines requested to scroll.
+
+
+Command: scroll_down 
 Command Number: 19
 Inputs:		P1 = Offset of first line on screen
 		P2 = Offset of end of file
+Outputs:	None 
+Description: Same as above but scrolls down rather than up.
+
+Command: set_text_limits
+Command Number: 20
+Inputs:		P1 = Text Start
+		P2 = Text End
 Outputs:	None
-Description: Same as above but scrolls down by one line rather than up.
-
-
-Command: query_line_length (planned)
-Command Number: ?
-Inputs:		P1 = current position
-		P2 = file start
-		P3 = file end
-
-Command: set_partial_line (planned)
-Command Number: 15
-Inputs:		P1 = offset of line
-		P2 = characters before line start
-Outputs:	None
-Description: Sets the visible area of a line too long for the screen.
-
-Command render_partial_line (planned)
-Command Number: 16
+Description: Sets the internal variables for the start and end of the text
+area to the given start and end values.
 
