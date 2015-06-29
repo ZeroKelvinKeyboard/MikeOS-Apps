@@ -1,24 +1,21 @@
 Command: insert_bytes
 Command Number: 0
 Inputs:         P1 = starting location
-                P2 = size of data to move
-                P3 = number of bytes to move data forward
+                P2 = number of bytes to insert
 Outputs:        None 
-Description: Moves a block of data after the starting location forward by a
-number of bytes. Usually used to make space for text inserts.
-The internal variable for the end of the text block is increased.
+Description: Inserts a number of bytes into the file data before the given
+offset, this is often done to make space for text inserts. The internal
+variable for the end of the text block is increased.
 
 Command: remove_bytes
 Command Number: 1
 Inputs:         P1 = starting location
-                P2 = current size of data
-                P3 = number of bytes to remove
+                P2 = number of bytes to remove
 Outputs:        None
-Description: Removes a number of bytes from the beginning of a data block and
-shifts the remaining data backward to fill the new space. Usually used to
-remove deleted text.  
-The internal variable for the end of the text block is decreased by the number
-of bytes deleted.
+
+Description: Removes a number of bytes from the file data beginning at the
+given offset. The internal variable for the end of the text block is decreased
+by the number of bytes deleted.
 
 Command: search
 Command Number: 2
@@ -169,7 +166,7 @@ Command: scroll_up
 Command Number: 18
 Inputs:		P1 = Offset of first line on screen
 		P2 = Lines to scroll
-Outputs:	P1 = Offset of first newly drawn line.
+Outputs:	P1 = New offset for first line on screen.
 		P2 = Number of lines actually scrolled.
 
 Description: Scrolls the screen upwards by a number of lines. Lines that are
@@ -182,8 +179,10 @@ were scrolled replaces the number of lines requested to scroll.
 Command: scroll_down 
 Command Number: 19
 Inputs:		P1 = Offset of first line on screen
-		P2 = Offset of end of file
-Outputs:	None 
+		P2 = Lines to scroll
+Outputs:	P1 = New screen start
+		P2 = Lines actually scrolled
+		P3 = Offset of first newly drawn line
 Description: Same as above but scrolls down rather than up.
 
 Command: set_text_limits

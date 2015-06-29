@@ -1,3 +1,10 @@
+Version 1.03x10^25
+- Fixed cursor and file position getting out of sync after scrolling.
+- Fixed lockups when cutting text in large files.
+- Fixed a bug in paste routine causing it to prevent upward scrolling.
+- Fixed search bug causing matches to be ignored.
+- Fixed reported line number being off by one after jumping to a numbered line.
+
 Version 1.02x10^25
 - Improved scrolling system, reducing redraw.
 - Reordered subroutines in BASIC code for performance reasons.

@@ -74,9 +74,6 @@ scroll:
   gosub apicall
   f = j
   h = j
-  if i = 18 then n = n - v
-  if i = 19 then n = n + v
-  gosub lineinfo
 return
 
 backnln:
@@ -99,12 +96,6 @@ fwdnln:
     if j > e then i = 0
   loop until i = 0
   if j > e then j = e
-return
-
-resetpos:
-  a = 0
-  b = 2
-  h = f
 return
 
 redraw:
@@ -155,7 +146,7 @@ return
 
 set_range:
   i = 20
-  j = g
+  j = f
   v = e
   gosub apicall
 return
@@ -346,6 +337,7 @@ scrollup:
   gosub lineinfo
   if a > l then a = l
   h = o + a
+  n = n - 1
 return
 
 godown:
@@ -367,6 +359,7 @@ scrolldown:
   gosub scroll
   h = y
 
+  n = n + v
   gosub lineinfo
   if a > l then a = l
   h = o + a
@@ -411,12 +404,14 @@ goeof:
   i = 20
   j = e + 1
   gosub backnln
-  f = j
+  h = j
+  f = h
 
-  gosub resetpos
   gosub render_text
 
   n = m - 19
+  a = 0
+  b = 2
 return
 
 gosol:
@@ -427,10 +422,12 @@ return
 
 gosof:
   f = g
-  gosub resetpos
+  h = g
   gosub render_text
 
   n = 1
+  a = 0
+  b = 2
 return
 
 gethelp:
@@ -458,7 +455,8 @@ inschar:
 
   i = 0
   j = h
-  v = 1
+  v = e - h + 1
+  y = 1
   gosub apicall
   e = e + 1
   l = l + 1
@@ -478,7 +476,8 @@ insline:
 
   i = 0
   j = h
-  v = 1
+  v = e - h + 1
+  y = 1
   gosub apicall
   e = e + 1
 
@@ -503,7 +502,8 @@ delete:
 
   i = 1
   j = h
-  v = 1
+  v = e - h + 1
+  y = 1
   gosub apicall
 
   e = e - 1
@@ -520,7 +520,8 @@ return
 delnl:
   i = 1
   j = h
-  v = 1
+  v = e - h + 1
+  y = 1
   gosub apicall
 
   e = e - 1
@@ -532,35 +533,38 @@ nextpage:
   x = m - n
   if x < 35 then goto goeof
 
-  gosub resetpos
-
   i = 1
   v = 18
   gosub scroll
+
+  n = n + 18 - b + 2
+  a = 0
+  b = 2
 return
 
 prevpage:
   if n < 18 then goto gosof
 
-  gosub resetpos
-
   i = 0
   v = 18
   gosub scroll
+
+  n = n - 18 - b + 2
+  a = 0
+  b = 2
+  gosub render_text
 return
 
 remline:
-  if g = e then return
   if p = 0 then gosub set_modified
   gosub gosol
 
   i = 1
   j = o
-  v = l + 1
+  v = e - g + 1
+  y = l
   gosub apicall
 
-  m = m - 1
-  if m = 0 then m = 1
   gosub render_text
   a = 0
 return
@@ -571,7 +575,6 @@ cuttext:
 return
 
 copytext:
-  if g = e then return
   w = 1
   x = o
 
@@ -580,13 +583,12 @@ copytext:
     string set $5 w v
     x = x + 1
     w = w + 1
-    if w = 127 then v = 10
-    if x > e then v = 10
+    if w > 127 then v = 10
   loop until v = 10
+  w = w - 1
   v = 0
   string set $5 w v
 
-  w = w - 1
   $3 = "" + w + " characters added to line buffer"
   gosub set_caption
 return
@@ -595,21 +597,26 @@ paste:
   if $5 = "" then return
   if p = 0 then gosub set_modified
 
-  len $5 v
-  e = e + v
+  gosub gosol
+  gosub insline
+  gosub goup
+  len $5 z
 
   i = 0
   j = h
+  v = e - h + 1
+  y = z
   gosub apicall
+  e = e + z
 
-  len $5 y
   x = h
-  for w = 1 to y
+  for w = 1 to z
     string get $5 w v
     poke v x
-    if v = 10 then m = m + 1
     x = x + 1
   next w
+
+  gosub set_range
 
   $3 = "Pasted line buffer to file"
   gosub set_caption
@@ -729,13 +736,15 @@ goline:
   number $4 i
   if i > m then goto goeof
   if i = 0 then return
-  n = i
   i = i - 1
+  n = i
   j = g
   gosub fwdnln
 
   f = j
-  gosub resetpos
+  h = j
+  a = 0
+  b = 2
   gosub render_text
 return
 
@@ -784,7 +793,7 @@ restore:
   $2 = $1
   gosub redraw
 goto main
-
+    
 debug:
   move 0 0
   $6 = "DEBUG" + t
