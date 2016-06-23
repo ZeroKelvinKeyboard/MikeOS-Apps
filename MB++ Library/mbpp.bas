@@ -1,13 +1,13 @@
 REM >>>MIKEBASIC-PLUS-PLUS-LIBRARY<<<
-REM Library Version 4.0.0
+REM Library Version 4.1.0
 REM Copyright (C) Joshua Beck.
-REM Email: mikeosdeveloper@gmail.com
+REM Email: zerokelvinkeyboard@gmail.com
 REM Licenced under the GNU General Public Licence revision 3.
 REM Requires MikeOS version 4.5 or later.
 
-REM See the wiki at: http://mikebasicplusplus.wikispot.org/
+REM Wiki: https://github.com/ZeroKelvinKeyboard/MikeOS-Apps/wiki/mbppdoc
 
-PRINT "MB++ Library version 4.0.0"
+PRINT "MB++ Library version 4.1.0"
 END
 
 ANCITEXT:
