@@ -1,3 +1,7 @@
+Version 1.04x10^25
+- Updated for API changes in MikeOS 4.6.
+- Text inputted into the caption bar no longer overflows past the end of line.
+
 Version 1.03x10^25
 - Fixed cursor and file position getting out of sync after scrolling.
 - Fixed lockups when cutting text in large files.

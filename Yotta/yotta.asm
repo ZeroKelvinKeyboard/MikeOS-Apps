@@ -2,6 +2,8 @@ bits 16
 org 32768
 %include 'mikedev.inc'
 
+%define VERSION_STRING		'1.04x10^25'
+
 ; Key code values with BIOS (using scan code set 1)
 %define UP_KEYCODE		0x48E0
 %define DOWN_KEYCODE		0x50E0
@@ -307,7 +309,7 @@ draw_cmd:
 	        			db	'^U PasteText ', 0
 	        			db	'^J Copy Text ', 0
 	
-	name_and_version		db 	'yotta 1.03x10^25', 0
+	name_and_version		db 	'yotta ', VERSION_STRING, 0
 	
 set_filename:
 	; IN: p1 = filename (blank for none)
@@ -434,6 +436,9 @@ input_caption:
 	
 	call os_show_cursor
 	mov word ax, [p2]
+	mov bh, 0		; Find how many character are left.
+	mov bl, 80		; This helps set the input length.
+	sub bl, dl
 	call os_input_string
 	call os_hide_cursor
 	
@@ -790,7 +795,7 @@ next_screen_delay:
 
 help_text_1:
   db 'yotta: a nano clone for MikeOS', 13, 10
-  db 'Version 1.03x10^25', 13, 10
+  db 'Version ', VERSION_STRING, 13, 10
   db 'Copyright (C) Joshua Beck 2015', 13, 10
   db 'Licenced under the GNU GPL v3', 13, 10
   db 'Email: zerokelvinkeyboard@gmail.com', 13, 10

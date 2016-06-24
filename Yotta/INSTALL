@@ -1,19 +1,41 @@
 Install Guide
 
-=== MikeOS ===
-MikeOS version 4.5.0 or later is needed to run this program.
-The latest version can be downloaded from the MikeOS website on SourceForge at the following URL.
-http://mikeos.sourceforge.net/
+=== MikeOS === 
 
-Copy the program files ('yotta.asm' and 'yotta.bas.txt') into the 'programs' folder inside the MikeOS directory. Run the build script to add the file to the disk image. The disk image can then be run in an emulator or written to a floppy disk and run on real hardware. The file 'yotta.bas.txt' has had the '.txt' extension added deliberately so that it will not be copied to the disk image as a standalone program but can exist in the prorams directory.
+MikeOS version 4.5.0 or later is needed to run this program. The latest version
+of MikeOS can be downloaded from the MikeOS website on SourceForge at the
+following URL:  http://mikeos.sourceforge.net/
 
-The program can be run by selecting 'YOTTA.BIN' in the program menu typing 'yotta' at the command line. This program also accepts commandline arguments; any filename specified will be read when the editor is opened.
+Copy the program files ('yotta.asm' and 'yotta.bas.txt') into the 'programs'
+folder inside the MikeOS directory. Run the build script to add the file to the
+disk image. The disk image can then be run in an emulator or written to a
+floppy disk and run on real hardware. The file 'yotta.bas.txt' has had the
+'.txt' extension added deliberately so that it will not be copied to the disk
+image as a standalone program but can exist in the prorams directory.
 
-=== TachyonOS ==
-Any build of TachyonOS can be used to run this program. This program should already be included with the operating system and as program entry in the main menu, however the version included may not be the most recent.
+Alternatively, simply copy the pre-compiled binary from the 'bin-mikeos' folder
+to your MikeOS disk image.
 
-Copy 'yotta.asm' and 'yotta.bas.txt' into the 'programs' folder located inside the TachyonOS directory, replace the existing file if needed. Run the build script to add the file to the disk image. The disk image can them be run using the emulator scripts or written to a floppy disk and run on real hardware. The '.txt' extension on 'yotta.bas.txt' should not be removed as this will cause it to be copied to the disk as a standalone program.
+The program can be run by selecting 'YOTTA.BIN' in the program menu or typing
+'yotta' at the command line. This program also accepts commandline arguments;
+any filename specified will be read when the editor is opened.
 
-The program can then be run by selecting 'Text Editor' in the main menu, 'YOTTA.BIN' in the 'All Programs' menu or typing 'yotta' in the command line shell. This program also accepts commandline arguments; any filename specified will be read when the editor is opened.
+=== TachyonOS == 
+
+Any build of TachyonOS can be used to run this program. This program  should
+already be included with the operating system and as program entry in the main
+menu, however the version included may not be the most recent.
+
+Copy 'yotta.asm' and 'yotta.bas.txt' into the 'programs' folder located inside
+the TachyonOS directory, replace the existing file if needed. Run the build
+script to add the file to the disk image. The disk image can them be run using
+the emulator scripts or written to a floppy disk and run on real hardware. The
+'.txt' extension on 'yotta.bas.txt' should not be removed as this will cause it
+to be copied to the disk as a standalone program.
+
+The program can then be run by selecting 'Text Editor' in the main menu,
+'YOTTA.BIN' in the 'All Programs' menu or typing 'yotta' in the command line
+shell. This program also accepts commandline arguments; any filename specified
+will be read when the editor is opened.
 
 
