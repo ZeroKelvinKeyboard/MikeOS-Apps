@@ -1,3 +1,7 @@
+Version 3.1.1
+  * Fixed render bugs.
+  * Fixed broken dialog boxes.
+
 Version 3.1.0
   * Rewritten to use MB++ Library 4.0
 
