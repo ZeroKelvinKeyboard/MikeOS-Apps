@@ -294,6 +294,9 @@ input_caption:
 	
 	call os_show_cursor
 	mov word ax, [p2]
+	mov bh, 0
+	mov bl, 80
+	sub bl, dl
 	call os_input_string
 	call os_hide_cursor
 	
