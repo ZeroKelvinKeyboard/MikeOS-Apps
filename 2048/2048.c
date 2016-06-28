@@ -6,11 +6,6 @@ int brd_h = 4;
 
 typedef int board[4][4];
 
-struct big_int {
-	int lower;
-	int upper;
-};
-
 void init_display();
 void reset_game();
 void play_game();
@@ -40,16 +35,16 @@ void shift_right(board *b);
 int game_is_lost();
 void end_program();
 
-void add_big_int(struct big_int *value, struct big_int *to_add);
-void set_big_int(struct big_int *value, int new_val);
+void add_big_int(struct longint *value, struct longint *to_add);
+void set_big_int(struct longint *value, int new_val);
 
 
 
 board grid;
 int alt_video_page = 0;
 
-struct big_int score;
-struct big_int merge_score;
+struct longint score;
+struct longint merge_score;
 
 char conv_buffer[10];
 
@@ -67,9 +62,9 @@ int main()
 	display_board(&grid);
 	play_game();
 
-	textio_set_cursor(9 + brd_h * 2, 15);
-	textio_set_text_colour(12);
-	textio_print_string("Game Over! Press ESCAPE to exit or ENTER to play again.");
+	movecur(15, 9 + brd_h * 2);
+	textcolour(12);
+	strout("Game Over! Press ESCAPE to exit or ENTER to play again.");
 
 	do {
 		key = os_wait_for_key();
@@ -109,9 +104,9 @@ void init_display()
 {
 	os_hide_cursor();
 	textio_init();
-	textio_set_visible_page(2);
-	textio_set_output_page(2);
-	textio_clear_screen();
+	viewpage(2);
+	outpage(2);
+	clearscr();
 }
 
 void play_game()
@@ -184,50 +179,50 @@ void display_board(board *b)
 	int x, y;
 
 	if (alt_video_page) {
-		textio_set_output_page(2);
+		outpage(2);
 	} else {
-		textio_set_output_page(4);
+		outpage(4);
 	}
 
-	textio_set_text_colour(7);
-	textio_clear_screen();
+	textcolour(7);
+	clearscr();
 
-	textio_set_cursor(7, 30);
-	os_long_int_to_string(score.lower, score.upper, 10, conv_buffer);
-	textio_print_string("Score: ");
-	textio_print_string(conv_buffer);
+	movecur(30, 7);
+	os_long_int_to_string(&score, 10, conv_buffer);
+	strout("Score: ");
+	strout(conv_buffer);
 
 	for (y = 0; y < brd_h; y++) {
-		textio_set_cursor(y * 2 + 8, 30);
-		textio_print_string(seperator);
-		textio_set_cursor(y * 2 + 9, 30);
+		movecur(30, y * 2 + 8);
+		strout(seperator);
+		movecur(30, y * 2 + 9);
 
 		for (x = 0; x < brd_w; x++) {
-			textio_write_char('|');
+			charout('|');
 
-			if ((*b)[y][x] < 10000) textio_write_char(' ');
-			if ((*b)[y][x] < 1000) textio_write_char(' ');
-			if ((*b)[y][x] < 100) textio_write_char(' ');
-			if ((*b)[y][x] < 10) textio_write_char(' ');
+			if ((*b)[y][x] < 10000) charout(' ');
+			if ((*b)[y][x] < 1000) charout(' ');
+			if ((*b)[y][x] < 100) charout(' ');
+			if ((*b)[y][x] < 10) charout(' ');
 
 			if ((*b)[y][x] == 0) {
-				textio_write_char(' ');
+				charout(' ');
 			} else {
-				textio_print_string(os_int_to_string((*b)[y][x]));
+				strout(os_int_to_string((*b)[y][x]));
 			}
 		}
 
-		textio_write_char('|');
+		charout('|');
 	}
 	
-	textio_set_cursor(16, 30);
-	textio_print_string(seperator);
+	movecur(30, 16);
+	strout(seperator);
 
 	if (alt_video_page) {
-		textio_set_visible_page(2);
+		viewpage(2);
 		alt_video_page = 0;
 	} else {
-		textio_set_visible_page(4);
+		viewpage(4);
 		alt_video_page = 1;
 	}
 }
@@ -288,7 +283,7 @@ int can_move_up(board *b)
 void merge_up(board *b)
 {
 	int x, y;
-	struct big_int tmp;
+	struct longint tmp;
 
 	set_big_int(&merge_score, 0);
 
@@ -345,7 +340,7 @@ int can_move_down(board *b)
 void merge_down(board *b)
 {
 	int x, y;
-	struct big_int tmp;
+	struct longint tmp;
 
 	set_big_int(&merge_score, 0);
 
@@ -404,7 +399,7 @@ int can_move_left(board *b)
 void merge_left(board *b)
 {
 	int x, y;
-	struct big_int tmp;
+	struct longint tmp;
 
 	set_big_int(&merge_score, 0);
 
@@ -462,7 +457,7 @@ int can_move_right(board *b)
 void merge_right(board *b)
 {
 	int x, y;
-	struct big_int tmp;
+	struct longint tmp;
 
 	set_big_int(&merge_score, 0);
 
@@ -510,7 +505,7 @@ int game_is_lost()
 	
 void end_program()
 {
-	textio_set_visible_page(0);
+	viewpage(0);
 	os_show_cursor();
 	exit(0);
 }
@@ -548,7 +543,7 @@ int cmp_board(board *a, board *b)
 }
 
 
-void add_big_int(struct big_int *value, struct big_int *to_add)
+void add_big_int(struct longint *value, struct longint *to_add)
 {
 	int old_val;
 
@@ -561,7 +556,7 @@ void add_big_int(struct big_int *value, struct big_int *to_add)
 	value->upper += to_add->upper;
 }
 
-void set_big_int(struct big_int *value, int new_val)
+void set_big_int(struct longint *value, int new_val)
 {
 	value->upper = 0;
 	value->lower = new_val;
