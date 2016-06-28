@@ -1,4 +1,5 @@
-; textio
+; TextIO Library
+; Version 1.2.0
 
 
 ; Initialises the TextIO library.
@@ -16,6 +17,10 @@ textio_init:
 	call textio_set_screen_limits
 
 	popa
+	ret
+
+textio_get_version:
+	mov ax, 3
 	ret
 	
 ; Write a character at the current cursor position in the current output colour 
@@ -296,12 +301,21 @@ textio_restore_area:
 	ret
 
 
-; Sets the text colour to use for drawing operations.
+; Sets the text colour to used for drawing operations.
 ;
 ; IN: AL = colour value
 ; OUT: nothing
 textio_set_text_colour:
 	mov [textio_data.text_colour], al
+	ret
+
+
+; Retrieves the text colour used for drawing operations.
+;
+; IN: nothing
+; OUT: AL = text colour
+textio_get_text_colour:
+	mov al, [textio_data.text_colour]
 	ret
 
 
@@ -327,6 +341,15 @@ textio_set_visible_page:
 	pop ax
 	ret
 
+
+textio_get_output_page:
+	mov al, [textio_data.output_page]
+	ret
+
+
+textio_get_visible_page:
+	mov al, [textio_data.visible_page]
+	ret
 
 
 ; Display a string at the cursor position.
@@ -476,6 +499,12 @@ textio_get_cursor:
 textio_scroll_down:
 	pusha
 
+	cmp cx, 0
+	je .done
+
+	cmp byte [textio_data.scroll_mode], 1
+	je .done
+
 	mov bl, [textio_data.visible_page]
 
 	mov al, [textio_data.output_page]
@@ -483,7 +512,7 @@ textio_scroll_down:
 
 	mov ah, 0x07
 	mov al, cl
-	mov bh, 7
+	mov bh, [textio_data.text_colour]
 	mov ch, 0
 	mov cl, 0
 	mov dh, [textio_data.last_row]
@@ -493,6 +522,7 @@ textio_scroll_down:
 	mov al, bl
 	call textio_set_visible_page
 
+.done:
 	popa
 	ret
 
@@ -502,12 +532,25 @@ textio_scroll_down:
 ; IN: nothing
 ; OUT: nothing
 textio_clear_screen:
-	push cx
-	push dx
+	pusha
 
-	mov cx, 0
-	call textio_scroll_down
-	
+	mov bl, [textio_data.visible_page]
+
+	mov al, [textio_data.output_page]
+	call textio_set_visible_page
+
+	mov ah, 0x07
+	mov al, 0
+	mov bh, [textio_data.text_colour]
+	mov ch, 0
+	mov cl, 0
+	mov dh, [textio_data.last_row]
+	mov dl, [textio_data.last_column]
+	int 0x10
+
+	mov al, bl
+	call textio_set_visible_page
+
 	mov dx, 0
 	call textio_set_cursor
 
@@ -522,6 +565,12 @@ textio_clear_screen:
 textio_set_screen_limits:
 	mov [textio_data.last_row], dh
 	mov [textio_data.last_column], dl
+	ret
+
+
+textio_get_screen_limits:
+	mov dh, [textio_data.last_row]
+	mov dl, [textio_data.last_column]
 	ret
 
 ; Copies the contents of one video page to another.
@@ -591,6 +640,122 @@ textio_clone_page:
 
 	popa
 	ret
+	
+
+%ifdef TEXTIO_USE_STATE_SAVE
+textio_get_state_size:
+	mov ax, 6
+	ret
+	
+; IN: SI = data address
+; OUT: nothing
+textio_save_state:
+	push ax
+	push si
+	
+	mov al, [textio_data.text_colour]
+	mov [si], al
+	mov al, [textio_data.visible_page]
+	mov [si + 1], al
+	mov al, [textio_data.output_page]
+	mov [si + 2], al
+	mov al, [textio_data.last_row]
+	mov [si + 3], al
+	mov al, [textio_data.last_column]
+	mov [si + 4], al
+	mov al, [textio_data.scroll_mode]
+	mov [si + 5], al
+	mov al, [textio_data.text_mode]
+	mov [si + 6], al
+	
+	pop si
+	pop ax
+	ret
+
+	
+; IN: SI = data address
+; OUT: nothing
+textio_restore_state:
+	push ax
+	push si
+	
+	mov al, [si]
+	mov [textio_data.text_colour], al
+	mov al, [si + 1]
+	mov [textio_data.visible_page], al
+	mov al, [si + 2]
+	mov [textio_data.output_page], al
+	mov al, [si + 3]
+	mov [textio_data.last_row], al
+	mov al, [si + 4]
+	mov [textio_data.last_column], al
+	mov al, [si + 5]
+	mov [textio_data.scroll_mode], al
+	mov al, [si + 6]
+	mov [textio_data.text_mode], al
+	
+	pop si
+	pop ax
+	ret
+%endif
+
+
+; IN: AL = mode (0 = normal, 1 = no scroll)
+; OUT: Nothing
+textio_set_scroll_mode:
+	cmp al, 2
+	jae .invalid
+
+	mov [textio_data.scroll_mode], al
+
+.invalid:
+	ret
+
+
+; IN: nothing
+; OUT: AL = scroll mode
+textio_get_scroll_mode:
+	mov al, [textio_data.scroll_mode]
+	ret
+
+
+; IN: AL = mode (0 = Normal, 1 = High-res)
+; OUT: nothing
+textio_set_text_mode:
+	push ax
+	push bx
+
+	cmp al, 0
+	je .normal_mode
+
+	cmp al, 1
+	je .high_res_mode
+
+.done:
+	pop bx
+	pop ax
+	ret
+
+.normal_mode:
+	mov ax, 0x1104
+	mov bl, 0
+	int 0x10
+
+	jmp .done
+
+.high_res_mode:
+	mov ax, 0x1102
+	mov bl, 0
+	int 0x10
+
+	jmp .done
+
+
+textio_get_text_mode:
+	mov al, [textio_data.text_mode]
+	ret
+
+
 
 ; Library data preserved between calls.
 textio_data:
@@ -599,5 +764,7 @@ textio_data:
 	.output_page		db 0
 	.last_row		db 0
 	.last_column		db 0
+	.scroll_mode		db 0
+	.text_mode		db 0
 
 
